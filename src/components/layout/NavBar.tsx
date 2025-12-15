@@ -1,125 +1,190 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, Phone, UserCircle } from 'lucide-react';
-import type { Session } from "@supabase/supabase-js";
+import type { Session } from '@supabase/supabase-js';
 import logo from '../../assets/logoAutomaticCarsSVG.svg';
 
+import { NAV_ITEMS, SOCIAL_LINKS_DATA } from './Navbar.data';
+import NavLink from './NavLink';
+import MobileMenu from './MobileMenu';
+import UserDropdown from './UserDropdown';
+
 interface NavbarProps {
-  session: Session | null;
-  onLogout: () => void;
-  onOpenAuth: () => void;
+    session: Session | null;
+    onLogout: () => void;
+    onOpenAuth: () => void;
+    currentPage?: string;
+    onNavigate?: (page: string) => void;
 }
 
-const NAV_ITEMS = [
-  { id: 'home', label: 'ACCUEIL', href: '#' },
-  { id: 'reservation', label: 'RÉSERVATION', href: '#' },
-  { id: 'fleet', label: 'FLOTTE', href: '#' },
-  { id: 'lld', label: 'LLD', href: '#' },
-  { id: 'news', label: 'ACTUS', href: '#' },
-  { id: 'about', label: 'NOTRE PARCOURS', href: '#' },
-  { id: 'contact', label: 'CONTACT', href: '#' },
-];
+export default function Navbar({
+    session,
+    onLogout,
+    onOpenAuth,
+    currentPage,
+    onNavigate,
+}: NavbarProps) {
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-export default function Navbar({ session, onLogout, onOpenAuth }: NavbarProps) {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState('home');
+    const [localPage, setLocalPage] = useState('home');
+    const activePage = currentPage || localPage;
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    const navigateFunction = onNavigate || ((id: string) => setLocalPage(id));
 
-  const handleNavClick = (id: string) => {
-    setCurrentPage(id);
-    setIsMobileMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    useEffect(() => {
+        const handleScroll = () => setIsScrolled(window.scrollY > 50);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
-  return (
-    <nav 
-      className={`fixed top-0 w-full z-50 transition-all duration-500 border-b border-transparent ${
-        isScrolled || currentPage !== 'home' 
-          ? 'bg-dark-900/95 backdrop-blur-md border-white/10 py-4' 
-          : 'bg-transparent py-6'
-      }`}
-    >
-      <div className="container mx-auto px-6 flex justify-center items-center max-w-[1800px]">
-        <div className="flex items-center shrink-0 mx-10 cursor-pointer" onClick={() => handleNavClick('home')}>
-          <img 
-            src={logo} 
-            alt="Automatic Cars" 
-            className="h-10 md:h-12 w-auto object-contain transition-all duration-300" 
-          />
-        </div>
+    // FIX SCROLL MOBILE
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            const scrollY = window.scrollY;
 
-        <div className="hidden xl:flex items-center space-x-8">
-          {NAV_ITEMS.map((item) => (
-             item.href !== '#' ? 
-             <a key={item.id} href={item.href} className="text-gray-300 hover:text-gold-400 text-sm font-bold uppercase tracking-widest transition-colors whitespace-nowrap">
-               {item.label}
-             </a> :
-             <button key={item.id} onClick={() => handleNavClick(item.id)} className={`text-sm font-bold uppercase tracking-widest transition-colors relative whitespace-nowrap after:content-[''] after:absolute after:-bottom-2 after:left-0 after:h-0.5 after:bg-gold-400 after:transition-all hover:after:w-full ${currentPage === item.id ? 'text-gold-400 after:w-full' : 'text-gray-300 hover:text-gold-400 after:w-0'}`}>
-               {item.label}
-             </button>
-          ))}
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.width = '100%';
+        } else {
+            const scrollY = Math.abs(
+                parseInt(document.body.style.top || '0', 10)
+            );
 
-          <div className="h-6 w-px bg-white/20 mx-4"></div>
-          
-          <a href="tel:+33768176882" className="flex items-center gap-2 text-white hover:text-gold-400 transition-colors whitespace-nowrap">
-            <Phone size={18} />
-            <span className="font-bold text-sm hidden 2xl:inline">+33 7 68 17 68 82</span>
-          </a>
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.width = '';
 
-          <button onClick={session ? onLogout : onOpenAuth} className="group flex items-center gap-2 text-white hover:text-gold-400 transition-colors text-sm font-bold uppercase tracking-widest whitespace-nowrap ml-4">
-            <UserCircle size={20} className={session ? "text-gold-400" : "text-current"} />
-            <span>{session ? "COMPTE" : "CONNEXION"}</span>
-          </button>
+            window.scrollTo(0, scrollY);
+        }
 
-          <button 
-            className="bg-gold-400 text-dark-900 px-6 py-3 rounded-sm text-xs font-bold uppercase tracking-widest ml-4 hover:bg-gold-600 transition-colors shadow-lg whitespace-nowrap"
-            onClick={() => handleNavClick('reservation')}
-          >
-            Réserver
-          </button>
-        </div>
+        return () => {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.width = '';
+        };
+    }, [isMobileMenuOpen]);
 
-        <div className="xl:hidden flex items-center gap-4 ml-auto">
-          <button onClick={onOpenAuth} className="text-white hover:text-gold-400 transition-colors">
-            <UserCircle size={24} className={session ? "text-gold-400" : ""} />
-          </button>
-          <button className="text-white hover:text-gold-400 transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
-        </div>
-      </div>
+    const handleNavClick = (id: string) => {
+        navigateFunction(id);
+        setIsMobileMenuOpen(false);
+    };
 
-      <div className={`fixed inset-0 bg-dark-900 z-40 transition-transform duration-500 xl:hidden flex flex-col justify-center ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-         
-         <div className="flex flex-col p-8 space-y-6 text-center">
-            <div className="mb-6 flex flex-col items-center">
-               <button onClick={() => { if(session) onLogout(); else onOpenAuth(); setIsMobileMenuOpen(false); }} className="flex flex-col items-center gap-2 text-gold-400 hover:text-white transition-colors">
-                  <UserCircle size={48} />
-                  <span className="text-xl font-serif italic">{session ? "Se déconnecter" : "Se connecter"}</span>
-               </button>
+    const isTransparent = activePage === 'home' && !isScrolled;
+    const activeBgClasses =
+        'bg-dark-900/95 backdrop-blur-md shadow-2xl border-b border-white/5';
+
+    return (
+        <div
+            className={`fixed top-0 w-full z-50 transition-all duration-500 ${
+                isTransparent ? 'bg-transparent' : activeBgClasses
+            }`}
+        >
+            {/* ---  NAVBAR PRINCIPALE --- */}
+            <nav className={`w-full ${isTransparent ? 'py-5' : 'py-3'}`}>
+                <div className="container mx-auto px-6 flex items-center max-w-[1900px]">
+                    {/* Logo */}
+                    <div
+                        className="flex items-center cursor-pointer"
+                        onClick={() => handleNavClick('home')}
+                    >
+                        <img
+                            src={logo}
+                            alt="Automatic Cars logo"
+                            className="h-12 md:h-14 w-auto"
+                        />
+                    </div>
+
+                    {/* Menu Desktop */}
+                    <div className="hidden xl:flex items-center space-x-7 ml-auto">
+                        {NAV_ITEMS.map((item) => (
+                            <NavLink
+                                key={item.id}
+                                type="nav"
+                                item={item}
+                                activePage={activePage}
+                                handleNavClick={handleNavClick}
+                                isMobile={false}
+                            />
+                        ))}
+
+                        <div className="h-8 w-px bg-white/20 mx-2"></div>
+
+                        <a
+                            href="tel:+33768176882"
+                            className="flex items-center gap-2 text-white hover:text-gold-400"
+                        >
+                            <Phone size={20} />
+                            <span className="hidden 2xl:inline font-bold text-sm">
+                                +33 7 68 17 68 82
+                            </span>
+                        </a>
+
+                        {session ? (
+                            <UserDropdown
+                                session={session}
+                                onLogout={onLogout}
+                                onNavigate={handleNavClick}
+                            />
+                        ) : (
+                            <button
+                                onClick={onOpenAuth}
+                                className="flex items-center gap-2 text-white hover:text-gold-400 font-bold uppercase"
+                            >
+                                <UserCircle size={22} />
+                                Connexion
+                            </button>
+                        )}
+
+                        <button
+                            className="bg-gold-400 text-dark-900 px-7 py-3 font-bold uppercase"
+                            onClick={() => handleNavClick('reservation')}
+                        >
+                            Réserver
+                        </button>
+                    </div>
+
+                    {/* Bouton Burger */}
+                    <div className="xl:hidden ml-auto">
+                        <button
+                            className="text-white"
+                            onClick={() => setIsMobileMenuOpen((v) => !v)}
+                        >
+                            {isMobileMenuOpen ? <X size={30} /> : <Menu size={30} />}
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            {/* ---  SOUS-NAVBAR  --- */}
+            <div className={`hidden xl:flex w-full justify-center items-center py-2.5 transition-all duration-500 ${
+                isTransparent ? 'bg-transparent' : 'bg-transparent' 
+            }`}>
+                <div className="flex items-center gap-6 text-[13px] font-sans">
+                    <span className="uppercase tracking-widest text-gold-400 font-bold opacity-90">Suivez-nous sur :</span>
+                    <div className="flex items-center gap-6">
+                        {SOCIAL_LINKS_DATA.map((link) => (
+                            <NavLink key={link.href} type='social' link={link} isMobile={false} />
+                        ))}
+                    </div>
+                </div>
             </div>
 
-            <div className="w-12 h-px bg-white/20 mx-auto"></div>
 
-            {NAV_ITEMS.map((item) => (
-                <button key={item.id} onClick={() => handleNavClick(item.id)} className="text-2xl text-white font-serif italic hover:text-gold-400">
-                    {item.label}
-                </button>
-            ))}
-
-            <div className="w-12 h-1 bg-gold-400 mx-auto my-6"></div>
-            <a href="tel:+33768176882" className="text-xl text-gray-300">+33 7 68 17 68 82</a>
-
-            <button className="w-full max-w-xs mx-auto mt-4 bg-gold-500 text-dark-900 px-6 py-4 rounded-sm font-bold uppercase tracking-widest hover:bg-gold-600 transition-colors" onClick={() => handleNavClick('reservation')}>
-                RÉSERVER MAINTENANT
-            </button>
-         </div>
-      </div>
-    </nav>
-  );
+            {/* Mobile Menu */}
+            <MobileMenu
+                isMobileMenuOpen={isMobileMenuOpen}
+                handleNavClick={handleNavClick}
+                session={session}
+                onLogout={onLogout}
+                onOpenAuth={onOpenAuth}
+                activePage={activePage}
+            />
+        </div>
+    );
 }

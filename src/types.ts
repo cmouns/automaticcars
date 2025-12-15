@@ -18,7 +18,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 }
 
 
-export type PageType = 'home' | 'reservation' | 'fleet' | 'lld' | 'news' | 'about' | 'contact';
+export type PageType = 'home' | 'reservation' | 'fleet' | 'lld' | 'subscription' | 'news' | 'about' | 'conditions' | 'contact';
 
 export interface NavItem {
   id: string;
