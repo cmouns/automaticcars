@@ -14,3 +14,26 @@
     font-family: 'Playfair Display', serif !important;
   }
 }
+
+
+.react-datepicker {
+    font-family: 'Lato', sans-serif !important; 
+    font-size: 0.9rem;
+    border-radius: 0.5rem; 
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker * {
+    font-family: 'Lato', sans-serif !important; 
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+    background-color: #D4AF37 !important; 
+    color: white !important;
+}
+
+.react-datepicker__day:hover {
+    background-color: #f7e6c4 !important; 
+}

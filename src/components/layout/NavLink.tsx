@@ -2,21 +2,18 @@ import React, { useMemo } from 'react';
 import type { NavItem, SocialLinkData } from './Navbar.data';
 import { InstagramIcon , TiktokIcon , SnapchatIcon} from './Navbar.icons'; 
 
-type IconComponentType = React.FC<any> | null;
 
-const getIconFromLink = (linkData: SocialLinkData): IconComponentType => {
-    const hrefLower = linkData.href.toLowerCase();
-    
-    if (hrefLower.includes('instagram')) {
-        return InstagramIcon;
-    }
-    if (hrefLower.includes('tiktok')) {
-        return TiktokIcon;
-    }
-    if (hrefLower.includes('snapchat') || hrefLower.includes('snap')) {
-        return SnapchatIcon;
-    }
-    return null; 
+interface IconProps {
+    size: number;
+    width: number;
+    height: number;
+}
+type IconComponentType = React.FC<IconProps>;
+
+const SOCIAL_ICON_MAP: { [key: string]: IconComponentType | null } = {
+    'Instagram': InstagramIcon,
+    'Tiktok': TiktokIcon,
+    'Snapchat': SnapchatIcon,
 };
 
 type LinkProps = {
@@ -41,13 +38,15 @@ type LinkProps = {
 
 function NavLink(props: LinkProps) {
   const { isMobile, className } = props;
-  
-  const Icon = useMemo(() => {
+
+  const iconKey = useMemo(() => {
       if (props.type === "social") {
-          return getIconFromLink(props.link);
+          return props.link.icon;
       }
       return null;
   }, [props.type, props.link]);
+
+  const Icon = iconKey ? SOCIAL_ICON_MAP[iconKey] : null; 
 
 
   if (props.type === "nav") {
@@ -70,7 +69,7 @@ function NavLink(props: LinkProps) {
     
     if (!Icon) return null; 
 
-    const baseClasses = isMobile ? 'text-4xl text-white hover:text-gold-400' : 'text-white hover:text-gold-400 transition-colors';
+    const baseClasses = isMobile ? 'text-4xl text-white' : 'text-white  transition-colors';
     
     const size = isMobile ? 30 : 20;
 
@@ -79,7 +78,7 @@ function NavLink(props: LinkProps) {
         href={link.href} 
         target="_blank" 
         rel="noopener noreferrer" 
-        className={className || baseClasses}
+        className={`${className || baseClasses} ${link.hover || ''}`}
       >
         <Icon 
           size={size} 

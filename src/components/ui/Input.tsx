@@ -1,30 +1,92 @@
-import React from 'react';
-import type { InputProps } from '../../types'; 
+import React, { useState, forwardRef } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
-export const Input: React.FC<InputProps> = ({ label, icon, className, ...props }) => {
-  return (
-    <div className="flex flex-col gap-2 w-full">
-      <label className="text-xs uppercase tracking-widest text-gold-500 font-serif ml-1">
-        {label}
-      </label>
-      <div className="relative group">
-        {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-gold-500 transition-colors duration-300">
-            {icon}
-          </div>
-        )}
-        <input
-          className={`
-            w-full bg-dark-800/50 border border-gray-700 
-            text-white placeholder-gray-600 rounded-lg py-3 
-            ${icon ? 'pl-12' : 'pl-4'} pr-4
-            focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500
-            transition-all duration-300
-            ${className || ''}
-          `}
-          {...props}
-        />
-      </div>
-    </div>
-  );
-};
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  icon?: React.ReactNode;
+  withShowPassword?: boolean;
+  error?: string;
+  // On ajoute la prop variant, par défaut 'dark' pour ne pas casser ton login
+  variant?: "dark" | "light"; 
+}
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(({
+    id,
+    type = "text",
+    placeholder,
+    required = false,
+    label,
+    icon,
+    withShowPassword = false,
+    className = "",
+    value,
+    onChange,
+    disabled,
+    error,
+    variant = "dark", 
+    ...props
+}, ref) => {
+    const [showPassword, setShowPassword] = useState(false);
+
+    const inputType = type === "password" && showPassword ? "text" : type;
+
+    const styles = {
+      dark: "border-gray-700 bg-dark-800 text-white placeholder-gray-500",
+      light: "border border-gold-500 bg-white text-black placeholder-gray-400",
+    };
+
+    return (
+        <div className="w-full">
+            {label && (
+                <label htmlFor={id} className="text-sm uppercase text-gold-500 ml-1 mb-1 block">
+                    {label}
+                    {required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+            )}
+            
+            <div className="relative group">
+                {icon && (
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 group-focus-within:text-gold-500 transition-colors">
+                        {icon}
+                    </div>
+                )}
+
+                <input
+                    ref={ref}
+                    id={id}
+                    type={inputType}
+                    className={`
+                        w-full py-3 pr-4 rounded-lg border
+                        focus:border-gold-500 focus:outline-none
+                        disabled: disabled:cursor-not-allowed disabled:bg-gray-300 
+                        transition-all duration-300
+                        ${styles[variant]} 
+                        ${icon ? "pl-11" : "pl-4"} 
+                        ${(withShowPassword) ? "pr-12" : ""}
+                        ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}
+                        ${className}
+                    `}
+                    placeholder={placeholder}
+                    required={required}
+                    disabled={disabled}
+                    value={value}
+                    onChange={onChange}
+                    {...props}
+                />
+                {withShowPassword && type === "password" && (
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gold-500 focus:outline-none transition-colors"
+                    >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                )}
+            </div>
+            
+            {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+        </div>
+    );
+});
+
+Input.displayName = "Input";

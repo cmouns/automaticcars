@@ -26,10 +26,31 @@ export interface NavItem {
   href?: string;
 }
 
+
 export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber?: string;
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber?: string;
+    dateOfBirth: string; 
+
+}
+
+export interface UserProfile extends User {
+    
+    address: string;
+    city: string;
+    zipCode: string;
+    country: string;
+    licenseNumber: string;
+    licenseExpiry: string;
+    avatarUrl?: string;
+}
+
+export interface FileUploadState {
+    file: File | null;
+    fileName: string | null;
+    uploading: boolean;
+    success: boolean;
 }
