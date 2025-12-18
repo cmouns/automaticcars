@@ -12,7 +12,9 @@ interface DateInputProps {
   name: string;
   className?: string;
   required?: boolean;
-  variant?: "dark" | "light"; 
+  variant?: "dark" | "light";
+  minDate?: Date;
+  maxDate?: Date;
 }
 
 export const DateInput: React.FC<DateInputProps> = ({
@@ -22,7 +24,9 @@ export const DateInput: React.FC<DateInputProps> = ({
   name,
   className,
   required = false,
-  variant = "dark", 
+  variant = "dark",
+  minDate, 
+  maxDate, 
 }) => {
   const selectedDate = value ? parseISO(value) : null;
 
@@ -35,13 +39,10 @@ export const DateInput: React.FC<DateInputProps> = ({
     }
   };
 
-  // --- MODIFICATION ICI ---
-  // On remplace border-gray-xxx par border-gold-500/30
   const styles = {
     dark: "border-gold-500 bg-dark-800 text-white placeholder-gray-500",
     light: "border-gold-500 bg-white text-black placeholder-gray-400",
   };
-  // ------------------------
 
   return (
     <div className="w-full">
@@ -64,14 +65,14 @@ export const DateInput: React.FC<DateInputProps> = ({
           showYearDropdown
           dropdownMode="select"
           placeholderText="JJ/MM/AAAA"
-          maxDate={new Date()}
+          minDate={minDate}
+          maxDate={maxDate}
           locale={fr}
           autoComplete="off"
           name={name}
           className={`
             w-full py-3 pl-4 pr-10 rounded-lg border
             focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500
-    
             cursor-pointer
             ${styles[variant]}
             ${className}

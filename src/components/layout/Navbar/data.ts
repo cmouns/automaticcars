@@ -1,5 +1,3 @@
-// --- DÉCLARATION DES TYPES ---
-
 export interface NavItem {
   id: string;
   label: string;

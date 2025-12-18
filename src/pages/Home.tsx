@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Hero from "../components/sections/Hero";
+import ImageUpload from "../components/ImageUpload";
 
 const Home: React.FC = () => {
   useEffect(() => {
@@ -9,6 +10,12 @@ const Home: React.FC = () => {
     <div className="home-page">
       <div className="xl:-mt-20">
         <Hero />
+        <div className="py-10 bg-gray-100">
+          <h2 className="text-center text-2xl font-bold mb-4">
+            Zone de Test Technique
+          </h2>
+          <ImageUpload />
+        </div>{" "}
       </div>
 
       <section className="min-h-[500px] bg-dark-800 text-white flex items-center justify-center p-10">

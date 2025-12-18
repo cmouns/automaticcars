@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Menu, X, Phone, UserCircle } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
-import logo from "../../assets/logoAutomaticCarsSVG.svg";
+import logo from "../../../assets/logoAutomaticCarsSVG.svg";
 
-import { NAV_ITEMS, SOCIAL_LINKS_DATA } from "./Navbar.data";
+import { NAV_ITEMS, SOCIAL_LINKS_DATA } from "./data";
 import NavLink from "./NavLink";
 import MobileMenu from "./MobileMenu";
 import UserDropdown from "./UserDropdown";
@@ -67,13 +67,11 @@ export default function Navbar({
     setIsMobileMenuOpen(false);
   };
 
-  // Définition de la transparence
   const isTransparent = activePage === "home" && !isScrolled;
 
-  // Classes conditionnelles de background
   const bgClasses = isTransparent
     ? "bg-transparent shadow-none"
-    : "bg-dark-900 backdrop-blur-md shadow-2xl"; // => couleur 100% opaque
+    : "bg-dark-900 backdrop-blur-md shadow-2xl"; // 
 
   const paddingClasses = isTransparent ? "py-5" : "py-3";
   const currentTextColor = isTransparent ? "text-dark-900" : "text-white";
@@ -161,7 +159,7 @@ export default function Navbar({
       {/* SOUS-NAVBAR */}
       <div
         className={`hidden xl:flex w-full justify-center items-center py-2.5 transition-all duration-500 ${
-          isTransparent ? "bg-transparent" : "bg-dark-900 backdrop-blur-md" // même couleur opaque que navbar principale
+          isTransparent ? "bg-transparent" : "bg-dark-900 backdrop-blur-md" 
         }`}
       >
         <div className="flex items-center gap-6 text-[13px] font-sans">

@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 import type { Session } from "@supabase/supabase-js";
 
-import Navbar from "./NavBar";
+import Navbar from "./Navbar";
 import Footer from "./Footer";
 
 interface MainLayoutProps {

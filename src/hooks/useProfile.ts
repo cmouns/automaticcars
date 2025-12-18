@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import type { UserProfile } from "../types";
 
-// Valeurs par défaut
 const INITIAL_FORM_DATA: UserProfile = {
   id: "",
   email: "",
@@ -15,7 +14,11 @@ const INITIAL_FORM_DATA: UserProfile = {
   zipCode: "",
   country: "",
   licenseNumber: "",
-  licenseExpiry: "",
+  licenseExpirationDate: "",
+  licenseObtainedDate: "",
+  licenseFrontPath: null,
+  licenseBackPath: null,
+  avatarUrl: "",
 };
 
 export const useProfile = () => {
@@ -25,15 +28,14 @@ export const useProfile = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [avatarPreview] = useState<string>("https://picsum.photos/200/200");
 
-  // --- 1. RÉCUPÉRATION (Fetch) ---
-  const fetchProfile = useCallback(async (id: string) => {
+  const fetchProfile = useCallback(async (uid: string) => {
     setLoading(true);
     setError(null);
     try {
       const { data, error } = await supabase
-        .from("profiles")
+        .from("clients")
         .select("*")
-        .eq("id", id)
+        .eq("user_id", uid)
         .single();
 
       if (error && error.code !== "PGRST116") {
@@ -41,95 +43,119 @@ export const useProfile = () => {
       }
 
       if (data) {
-        // Mapping: Base de données (snake_case) -> React (camelCase)
         setFormData({
           id: data.id,
           email: data.email,
-          firstName: data.first_name || "",
-          lastName: data.last_name || "",
-          phoneNumber: data.phone_number || "",
+          firstName: data.firstname || "",
+          lastName: data.lastname || "",
+          phoneNumber: data.phone || "",
           dateOfBirth: data.date_of_birth || "",
-          address: data.address || "",
-          city: data.city || "",
-          zipCode: data.zip_code || "",
+          address: data.addr_street || "",
+          city: data.addr_city || "",
+          zipCode: data.addr_zip || "",
           country: data.country || "",
-          licenseNumber: data.license_number || "",
-          licenseExpiry: data.license_expiry || "",
+          licenseNumber: data.license_num || "",
+          licenseExpirationDate: data.license_expiration_date || "",
+          licenseObtainedDate: data.license_obtained_date || "",
           avatarUrl: data.avatar_url || "",
+          isPro: data.is_pro || false,
+          licenseFrontPath: data.license_front_path || null,
+          licenseBackPath: data.license_back_path || null,
         });
-      } else {
-        setFormData((prev) => ({ ...prev, id: id }));
       }
-    } catch (err) {
-      console.error("Erreur de chargement:", err);
+    } catch (err: unknown) {
+      console.error(err);
       setError("Impossible de charger le profil.");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // --- 2. VÉRIFICATION AUTH ---
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-        fetchProfile(user.id);
-      } else {
-        setError("Vous devez être connecté.");
+    let mounted = true;
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user && mounted) {
+        setUserId(session.user.id);
+        fetchProfile(session.user.id);
+      } else if (mounted) {
         setLoading(false);
       }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user && mounted) {
+        setUserId(session.user.id);
+        fetchProfile(session.user.id);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
     };
-    getUser();
   }, [fetchProfile]);
 
-  // --- 3. ACTIONS (Change & Save) ---
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }, []);
+  const handleChange = useCallback(
+    (
+      e:
+        | React.ChangeEvent<HTMLInputElement>
+        | { target: { name: string; value: string } }
+    ) => {
+      setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    },
+    []
+  );
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId) {
-      setError("ID utilisateur manquant.");
-      return;
-    }
+    if (!userId) return;
 
     setLoading(true);
     setError(null);
 
-    // Mapping Inverse: React (camelCase) -> Base de données (snake_case)
-    const profileData = {
-      id: userId,
-      first_name: formData.firstName,
-      last_name: formData.lastName,
+    const clientData = {
+      user_id: userId,
       email: formData.email,
-      phone_number: formData.phoneNumber,
-      date_of_birth: formData.dateOfBirth,
-      address: formData.address,
-      city: formData.city,
-      zip_code: formData.zipCode,
+      firstname: formData.firstName,
+      lastname: formData.lastName,
+      phone: formData.phoneNumber,
+      date_of_birth: formData.dateOfBirth || null,
+      addr_street: formData.address,
+      addr_city: formData.city,
+      addr_zip: formData.zipCode,
       country: formData.country,
-      license_number: formData.licenseNumber,
-      license_expiry: formData.licenseExpiry,
-      avatar_url: formData.avatarUrl,
+      license_num: formData.licenseNumber,
+      license_expiration_date: formData.licenseExpirationDate || null,
+      license_obtained_date: formData.licenseObtainedDate || null,
     };
 
     try {
       const { error: saveError } = await supabase
-        .from("profiles")
-        .upsert(profileData)
-        .select();
+        .from("clients")
+        .upsert(clientData, { onConflict: "user_id" });
 
       if (saveError) throw new Error(saveError.message);
       alert("Profil mis à jour !");
-    } catch (err) {
-      console.error("Erreur sauvegarde:", err);
-      setError("Erreur lors de l'enregistrement.");
+    } catch (err: unknown) {
+      console.error(err);
+      const message =
+        err instanceof Error ? err.message : "Erreur lors de l'enregistrement.";
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  return { loading, error, formData, avatarPreview, handleChange, handleSave };
+  return {
+    loading,
+    error,
+    formData,
+    avatarPreview,
+    handleChange,
+    handleSave,
+    userId,
+  };
 };

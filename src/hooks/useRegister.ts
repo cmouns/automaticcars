@@ -1,4 +1,3 @@
-// Fichier: src/hooks/useRegister.ts
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -55,31 +54,40 @@ export const useRegister = (onSuccess: () => void) => {
             "Le numéro doit contenir 9 chiffres, sans '0' au début."
           );
       }
+      const fullPhoneNumber = countryCode + finalPhone;
 
-      const { data: emailExists } = await supabase.rpc("check_email_exists", {
-        email_to_check: email,
-      });
-      if (emailExists) throw new Error("Cette adresse mail est déjà utilisée.");
-
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-            phone_number: countryCode + finalPhone,
-            date_of_birth: dateOfBirth,
+      const { data: authData, error: signUpError } = await supabase.auth.signUp(
+        {
+          email,
+          password,
+          options: {
+            data: {
+              firstname: firstName,
+              lastname: lastName,
+            },
           },
-        },
-      });
+        }
+      );
 
-      if (signUpError) {
-        if (signUpError.message.includes("Password"))
-          throw new Error(
-            "Le mot de passe doit contenir 8 caractères dont 1 majuscule, 1 chiffre et 1 caractères spécials(*@.-/...)."
-          );
-        throw new Error(signUpError.message);
+      if (signUpError) throw new Error(signUpError.message);
+      if (!authData.user)
+        throw new Error("Erreur lors de la création du compte.");
+
+      const { error: clientError } = await supabase.from("clients").insert([
+        {
+          user_id: authData.user.id,
+          email: email,
+          firstname: firstName,
+          lastname: lastName,
+          phone: fullPhoneNumber,
+          date_of_birth: dateOfBirth || null,
+          is_pro: false,
+          vip: false,
+        },
+      ]);
+
+      if (clientError) {
+        console.error(clientError);
       }
 
       onSuccess();

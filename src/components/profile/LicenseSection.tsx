@@ -1,146 +1,177 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "../ui/Input";
+import { DateInput } from "../ui/DateInput";
 import { Button } from "../ui/Button";
-import { FileText, Upload, CheckCircle, Trash2 } from "lucide-react";
-import type { FileUploadState } from "../../types";
+import { FileText, Save, AlertTriangle } from "lucide-react";
+import { supabase } from "../../lib/supabaseClient";
+import { UploadDocument } from "../UploadDocument";
 
-export const LicenseSection: React.FC = () => {
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [uploadState, setUploadState] = useState<FileUploadState>({
-    file: null,
-    fileName: null,
-    uploading: false,
-    success: false,
-  });
+interface LicenseSectionProps {
+  userId: string;
+  initialData?: {
+    licenseNum: string;
+    licenseExpirationDate: string;
+    licenseObtainedDate: string;
+    licenseFront: string | null;
+    licenseBack: string | null;
+  };
+}
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export const LicenseSection: React.FC<LicenseSectionProps> = ({
+  userId,
+  initialData,
+}) => {
+  const [licenseNumber, setLicenseNumber] = useState(
+    initialData?.licenseNum || ""
+  );
+  const [expirationDate, setExpirationDate] = useState(
+    initialData?.licenseExpirationDate || ""
+  );
+  const [obtainedDate, setObtainedDate] = useState(
+    initialData?.licenseObtainedDate || ""
+  );
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.type !== "application/pdf") {
-        alert("Seuls les fichiers PDF sont acceptés.");
-        return;
+  const [saving, setSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const today = new Date();
+  const minReasonableDate = new Date();
+  minReasonableDate.setFullYear(today.getFullYear() - 100);
+
+  useEffect(() => {
+    if (initialData) {
+      setLicenseNumber(initialData.licenseNum || "");
+      setExpirationDate(initialData.licenseExpirationDate || "");
+      setObtainedDate(initialData.licenseObtainedDate || "");
+    }
+  }, [initialData]);
+
+  const handleSaveInfo = async () => {
+    if (!userId) return;
+    setSaving(true);
+    setErrorMsg(null);
+
+    const cleanExpiration = expirationDate === "" ? null : expirationDate;
+    const cleanObtained = obtainedDate === "" ? null : obtainedDate;
+
+    try {
+      const { data, error } = await supabase
+        .from("clients")
+        .update({
+          license_num: licenseNumber,
+          license_expiration_date: cleanExpiration,
+          license_obtained_date: cleanObtained,
+        })
+        .eq("user_id", userId)
+        .select();
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        throw new Error(
+          "Votre profil client n'existe pas encore. Veuillez sauvegarder vos Informations Personnelles (Nom/Prénom) d'abord."
+        );
       }
 
-      setUploadState({ ...uploadState, uploading: true });
-      setTimeout(() => {
-        setUploadState({
-          file: file,
-          fileName: file.name,
-          uploading: false,
-          success: true,
-        });
-      }, 1500);
-    }
-  };
+      alert("Informations du permis sauvegardées avec succès !");
 
-  const removeFile = () => {
-    setUploadState({
-      file: null,
-      fileName: null,
-      uploading: false,
-      success: false,
-    });
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    } catch (error: unknown) {
+      console.error("Erreur sauvegarde:", error);
+
+      let message = "Une erreur inconnue est survenue.";
+      if (error instanceof Error) {
+        message = error.message;
+      }
+
+      setErrorMsg(`Erreur lors de la sauvegarde : ${message}`);
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="border-b border-zinc-800 pb-6">
-        <h2 className="text-3xl font-serif text-white">Permis de Conduire</h2>
-        <p className="text-zinc-400 text-sm font-light mt-2">
-          Obligatoire pour toute location. Vos documents sont stockés de manière
-          sécurisée.
+      <div className="border-b border-gray-200 pb-6">
+        <h2 className="text-3xl font-serif text-dark-900">
+          Permis de Conduire
+        </h2>
+        <p className="text-gray-500 text-sm font-light mt-2">
+          Ces informations nous permettent de vérifier l'ancienneté de votre
+          permis et sa validité.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Input
-          label="Numéro de Permis"
-          placeholder="ex: 123456789"
-          value={licenseNumber}
-          onChange={(e) => setLicenseNumber(e.target.value)}
-          icon={<FileText size={16} />}
-        />
-        <Input
-          label="Date d'expiration"
-          type="date"
-          value={expiryDate}
-          onChange={(e) => setExpiryDate(e.target.value)}
-        />
-      </div>
-
-      <div className="bg-zinc-900/30 border border-zinc-800 p-8 rounded-sm">
-        <div className="flex flex-col items-center justify-center text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-zinc-900 flex items-center justify-center border border-zinc-700">
-            {uploadState.success ? (
-              <CheckCircle className="text-gold-400 w-8 h-8" />
-            ) : (
-              <FileText className="text-zinc-500 w-8 h-8" />
-            )}
-          </div>
-
-          <div>
-            <h4 className="text-white font-serif text-lg">
-              {uploadState.success
-                ? "Document Ajouté"
-                : "Copie du Permis (PDF)"}
-            </h4>
-            <p className="text-zinc-500 text-xs mt-1 max-w-sm mx-auto">
-              {uploadState.success
-                ? `Fichier: ${uploadState.fileName}`
-                : "Veuillez télécharger une copie lisible de votre permis de conduire au format PDF."}
-            </p>
-          </div>
-
-          {!uploadState.success && !uploadState.uploading && (
-            <div className="relative">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/pdf"
-                onChange={handleFileChange}
-                className="hidden"
-                id="license-upload"
-              />
-              <label
-                htmlFor="license-upload"
-                className="inline-flex items-center gap-2 cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-6 py-3 text-xs uppercase tracking-widest transition-colors border border-zinc-700 hover:border-gold-400"
-              >
-                <Upload size={16} />
-                Sélectionner un fichier
-              </label>
-            </div>
-          )}
-
-          {uploadState.uploading && (
-            <div className="text-gold-400 text-sm animate-pulse uppercase tracking-widest">
-              Téléchargement en cours...
-            </div>
-          )}
-
-          {uploadState.success && (
-            <button
-              onClick={removeFile}
-              className="text-red-500 hover:text-red-400 text-xs uppercase tracking-widest flex items-center gap-2"
-            >
-              <Trash2 size={14} /> Supprimer le fichier
-            </button>
-          )}
+      {errorMsg && (
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md flex items-start gap-3">
+          <AlertTriangle className="shrink-0 mt-0.5" size={18} />
+          <p className="text-sm">{errorMsg}</p>
         </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="md:col-span-2">
+          <Input
+            label="Numéro de Permis"
+            placeholder="ex: 123456789"
+            value={licenseNumber}
+            onChange={(e) => setLicenseNumber(e.target.value)}
+            icon={<FileText size={16} />}
+            variant="light"
+          />
+        </div>
+
+        <DateInput
+          label="Date d'obtention"
+          name="licenseObtainedDate"
+          value={obtainedDate}
+          onChange={(e) => setObtainedDate(e.target.value)}
+          variant="light"
+          maxDate={today}
+          minDate={minReasonableDate}
+        />
+        <DateInput
+          label="Date d'expiration"
+          name="licenseExpirationDate"
+          value={expirationDate}
+          onChange={(e) => setExpirationDate(e.target.value)}
+          variant="light"
+          minDate={today}
+        />
       </div>
 
-      <div className="flex justify-end pt-4">
+      <div className="flex justify-end">
         <Button
-          onClick={() => alert("Informations permis sauvegardées")}
-          disabled={!licenseNumber || !uploadState.success}
+          onClick={handleSaveInfo}
+          disabled={saving || !licenseNumber}
+          className="bg-dark-900 text-white hover:bg-gold-500 hover:text-black border border-transparent"
         >
-          Valider le permis
+          {saving ? "Sauvegarde..." : "Enregistrer les informations"}{" "}
+          <Save size={16} className="ml-2" />
         </Button>
+      </div>
+
+      <div className="mt-8 border-t border-gray-200 pt-8">
+        <h3 className="text-xl text-dark-900 font-serif mb-6">
+          Photos du Permis
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <UploadDocument
+            userId={userId}
+            label="Permis (Recto)"
+            columnName="license_front_path"
+            currentPath={initialData?.licenseFront}
+            onUploadComplete={(path) => console.log("Recto update:", path)}
+          />
+
+          <UploadDocument
+            userId={userId}
+            label="Permis (Verso)"
+            columnName="license_back_path"
+            currentPath={initialData?.licenseBack}
+            onUploadComplete={(path) => console.log("Verso update:", path)}
+          />
+        </div>
       </div>
     </div>
   );
