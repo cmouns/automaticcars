@@ -6,12 +6,11 @@ export const useLogin = (onClose: () => void) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // La fonction générique pour mettre à jour email ou password
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value, // Utilisation de la propriété calculée
+      [name]: value, 
     }));
   };
 

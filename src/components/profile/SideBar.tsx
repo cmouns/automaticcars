@@ -1,15 +1,26 @@
 import React from "react";
 import { User, Shield, FileText, CreditCard, LogOut, Car } from "lucide-react";
+import { supabase } from "../../lib/supabaseClient"; //
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  firstName?: string;
+  lastName?: string;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
+  firstName = "",
+  lastName = "",
 }) => {
+  const navigate = useNavigate();
+
+  const initial = firstName.charAt(0).toUpperCase() || "U";
+  const fullName = `${firstName} ${lastName}`.trim() || "Utilisateur";
+
   const menuItems = [
     { id: "profile", label: "Mon Profil", icon: <User size={18} /> },
     {
@@ -26,25 +37,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
   ];
 
-  const handleLogout = () => {
-    alert("Déconnexion simulée");
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut(); //
+      if (error) throw error;
+      navigate("/");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+    }
   };
 
   return (
     <aside className="w-full lg:w-80 flex-shrink-0">
       <div className="bg-white border border-gold-500/30 shadow-[0_0_20px_rgba(218,175,55,0.25)] p-6 sticky lg:top-32">
-        {" "}
         <div className="flex items-center gap-4 mb-8 pb-8 border-b border-zinc-800">
           <div className="w-12 h-12 rounded-full bg-gold-400 text-black flex items-center justify-center font-serif text-xl font-bold">
-            M
+            {initial}
           </div>
           <div className="overflow-hidden">
-            <div className="text-black font-medium truncate">Marc Dubois</div>
+            <div className="text-black font-medium truncate">{fullName}</div>
             <div className="text-xs text-black uppercase tracking-wider truncate">
               Membre
             </div>
           </div>
         </div>
+
         <nav className="space-y-1">
           {menuItems.map((item) => (
             <button
@@ -59,13 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }
               `}
             >
-              <span
-                className={
-                  activeTab === item.id
-                    ? "hover:text-white "
-                    : "hover:text-gray-400 "
-                }
-              >
+              <span className={activeTab === item.id ? "text-white" : ""}>
                 {item.icon}
               </span>
               <span className="whitespace-nowrap overflow-hidden text-ellipsis">
@@ -74,6 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           ))}
         </nav>
+
         <div className="mt-12 pt-8 border-t border-zinc-800">
           <button
             onClick={handleLogout}

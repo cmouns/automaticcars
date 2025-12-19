@@ -2,15 +2,10 @@ import React from "react";
 import { Button } from "../../ui/Button";
 import { useProfile } from "../../../hooks/useProfile";
 import { ProfileHeader } from "./Header";
-import {
-  PersonalDetails,
-  AddressDetails,
-  LicenseDetails,
-} from "./Fields";
+import { PersonalDetails, AddressDetails, LicenseDetails } from "./Fields";
 
-export const ProfileSection: React.FC = () => {
-  const { loading, error, formData, avatarPreview, handleChange, handleSave } =
-    useProfile();
+export const PersonalInfo: React.FC = () => {
+  const { loading, error, formData, handleChange, handleSave } = useProfile();
 
   if (loading && !formData.firstName) {
     return (
@@ -37,10 +32,7 @@ export const ProfileSection: React.FC = () => {
       onSubmit={handleSave}
       className="space-y-10 animate-in fade-in duration-500 text-gray-900 max-w-4xl mx-auto p-4 md:p-8"
     >
-      <ProfileHeader
-        avatarUrl={formData.avatarUrl}
-        avatarPreview={avatarPreview}
-      />
+      <ProfileHeader />
 
       <PersonalDetails formData={formData} handleChange={handleChange} />
       <AddressDetails formData={formData} handleChange={handleChange} />

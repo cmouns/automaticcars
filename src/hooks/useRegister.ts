@@ -19,9 +19,11 @@ export const useRegister = (onSuccess: () => void) => {
       | React.ChangeEvent<HTMLInputElement>
       | { target: { name: string; value: string } }
   ) => {
-    let value = e.target.value;
-    if (e.target.name === "phoneNumber") value = value.replace(/[^0-9]/g, "");
-    setFormData((prev) => ({ ...prev, [e.target.name]: value }));
+    const { name, value } = e.target;
+    const finalValue =
+      name === "phoneNumber" ? value.replace(/[^0-9]/g, "") : value;
+
+    setFormData((prev) => ({ ...prev, [name]: finalValue }));
   };
 
   const setCountryCode = (code: string) => {
@@ -46,15 +48,16 @@ export const useRegister = (onSuccess: () => void) => {
     try {
       if (!phoneNumber) throw new Error("Le numéro de téléphone est requis.");
 
-      let finalPhone = phoneNumber;
+      let cleanPhone = phoneNumber;
       if (countryCode === "+33") {
-        if (finalPhone.startsWith("0")) finalPhone = finalPhone.substring(1);
-        if (finalPhone.length !== 9)
+        if (cleanPhone.startsWith("0")) cleanPhone = cleanPhone.substring(1);
+        if (cleanPhone.length !== 9) {
           throw new Error(
-            "Le numéro doit contenir 9 chiffres, sans '0' au début."
+            "Le numéro français doit contenir 9 chiffres après l'indicatif."
           );
+        }
       }
-      const fullPhoneNumber = countryCode + finalPhone;
+      const fullPhoneNumber = countryCode + cleanPhone;
 
       const { data: authData, error: signUpError } = await supabase.auth.signUp(
         {
@@ -64,34 +67,36 @@ export const useRegister = (onSuccess: () => void) => {
             data: {
               firstname: firstName,
               lastname: lastName,
+              phone: fullPhoneNumber,
             },
           },
         }
       );
 
-      if (signUpError) throw new Error(signUpError.message);
+      if (signUpError) throw signUpError;
       if (!authData.user)
         throw new Error("Erreur lors de la création du compte.");
-
-      const { error: clientError } = await supabase.from("clients").insert([
+      const { error: clientError } = await supabase.from("clients").upsert(
         {
           user_id: authData.user.id,
-          email: email,
-          firstname: firstName,
-          lastname: lastName,
+          email: email.toLowerCase().trim(),
+          firstname: firstName.trim(),
+          lastname: lastName.trim(),
           phone: fullPhoneNumber,
           date_of_birth: dateOfBirth || null,
           is_pro: false,
           vip: false,
         },
-      ]);
+        { onConflict: "user_id" }
+      );
 
       if (clientError) {
-        console.error(clientError);
+        console.error("Erreur table clients:", clientError.message);
       }
 
       onSuccess();
     } catch (err: unknown) {
+      console.error("Registration error:", err);
       setError(
         err instanceof Error ? err.message : "Une erreur inconnue est survenue."
       );

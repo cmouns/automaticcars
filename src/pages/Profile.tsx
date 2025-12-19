@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "../components/profile/SideBar";
-import { ProfileSection } from "../components/profile/PersonalInfo";
+import { PersonalInfo } from "../components/profile/PersonalInfo";
 import { LicenseSection } from "../components/profile/LicenseSection";
 import { SecuritySection } from "../components/profile/SecuritySection";
 import { useProfile } from "../hooks/useProfile";
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState("profile");
-  const { userId, formData, loading } = useProfile();
+  const { userId, formData, loading, refreshProfile } = useProfile();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -16,7 +16,7 @@ const Profile: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "profile":
-        return <ProfileSection />;
+        return <PersonalInfo />;
 
       case "license":
         return (
@@ -29,6 +29,7 @@ const Profile: React.FC = () => {
               licenseFront: formData.licenseFrontPath || null,
               licenseBack: formData.licenseBackPath || null,
             }}
+            onUpdate={refreshProfile}
           />
         );
 
@@ -50,7 +51,8 @@ const Profile: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream text-gold-500">
-        Chargement...
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
+        <span className="ml-4">Chargement de votre espace...</span>
       </div>
     );
   }
@@ -70,7 +72,12 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12">
-          <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+          <Sidebar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            firstName={formData.firstName}
+            lastName={formData.lastName}
+          />
 
           <div className="flex-1 min-w-0">
             <div className="bg-white border border-gold-500/30 shadow-[0_0_20px_rgba(218,175,55,0.25)] p-8 md:p-12 text-dark-900">
@@ -79,7 +86,6 @@ const Profile: React.FC = () => {
           </div>
         </div>
       </main>
-
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-gold-600/5 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-900/5 rounded-full blur-[120px]"></div>

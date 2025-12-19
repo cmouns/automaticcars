@@ -15,22 +15,17 @@ interface LicenseSectionProps {
     licenseFront: string | null;
     licenseBack: string | null;
   };
+  onUpdate?: () => void;
 }
 
 export const LicenseSection: React.FC<LicenseSectionProps> = ({
   userId,
   initialData,
+  onUpdate,
 }) => {
-  const [licenseNumber, setLicenseNumber] = useState(
-    initialData?.licenseNum || ""
-  );
-  const [expirationDate, setExpirationDate] = useState(
-    initialData?.licenseExpirationDate || ""
-  );
-  const [obtainedDate, setObtainedDate] = useState(
-    initialData?.licenseObtainedDate || ""
-  );
-
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [expirationDate, setExpirationDate] = useState("");
+  const [obtainedDate, setObtainedDate] = useState("");
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -51,39 +46,24 @@ export const LicenseSection: React.FC<LicenseSectionProps> = ({
     setSaving(true);
     setErrorMsg(null);
 
-    const cleanExpiration = expirationDate === "" ? null : expirationDate;
-    const cleanObtained = obtainedDate === "" ? null : obtainedDate;
-
     try {
       const { data, error } = await supabase
         .from("clients")
         .update({
           license_num: licenseNumber,
-          license_expiration_date: cleanExpiration,
-          license_obtained_date: cleanObtained,
+          license_expiration_date: expirationDate || null,
+          license_obtained_date: obtainedDate || null,
         })
         .eq("user_id", userId)
         .select();
 
       if (error) throw error;
+      if (!data || data.length === 0) throw new Error("Profil inexistant.");
 
-      if (!data || data.length === 0) {
-        throw new Error(
-          "Votre profil client n'existe pas encore. Veuillez sauvegarder vos Informations Personnelles (Nom/Prénom) d'abord."
-        );
-      }
-
-      alert("Informations du permis sauvegardées avec succès !");
-
-    } catch (error: unknown) {
-      console.error("Erreur sauvegarde:", error);
-
-      let message = "Une erreur inconnue est survenue.";
-      if (error instanceof Error) {
-        message = error.message;
-      }
-
-      setErrorMsg(`Erreur lors de la sauvegarde : ${message}`);
+      alert("Permis sauvegardé !");
+      if (onUpdate) onUpdate();
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : "Erreur.");
     } finally {
       setSaving(false);
     }
@@ -96,8 +76,7 @@ export const LicenseSection: React.FC<LicenseSectionProps> = ({
           Permis de Conduire
         </h2>
         <p className="text-gray-500 text-sm font-light mt-2">
-          Ces informations nous permettent de vérifier l'ancienneté de votre
-          permis et sa validité.
+          Vérification de la validité du permis.
         </p>
       </div>
 
@@ -112,14 +91,12 @@ export const LicenseSection: React.FC<LicenseSectionProps> = ({
         <div className="md:col-span-2">
           <Input
             label="Numéro de Permis"
-            placeholder="ex: 123456789"
             value={licenseNumber}
             onChange={(e) => setLicenseNumber(e.target.value)}
             icon={<FileText size={16} />}
             variant="light"
           />
         </div>
-
         <DateInput
           label="Date d'obtention"
           name="licenseObtainedDate"
@@ -141,11 +118,12 @@ export const LicenseSection: React.FC<LicenseSectionProps> = ({
 
       <div className="flex justify-end">
         <Button
+          type="button"
           onClick={handleSaveInfo}
           disabled={saving || !licenseNumber}
-          className="bg-dark-900 text-white hover:bg-gold-500 hover:text-black border border-transparent"
+          className="px-6 py-3"
         >
-          {saving ? "Sauvegarde..." : "Enregistrer les informations"}{" "}
+          {saving ? "Sauvegarde..." : "Enregistrer les informations"}
           <Save size={16} className="ml-2" />
         </Button>
       </div>
@@ -154,22 +132,20 @@ export const LicenseSection: React.FC<LicenseSectionProps> = ({
         <h3 className="text-xl text-dark-900 font-serif mb-6">
           Photos du Permis
         </h3>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <UploadDocument
             userId={userId}
             label="Permis (Recto)"
             columnName="license_front_path"
             currentPath={initialData?.licenseFront}
-            onUploadComplete={(path) => console.log("Recto update:", path)}
+            onUploadComplete={() => onUpdate && onUpdate()}
           />
-
           <UploadDocument
             userId={userId}
             label="Permis (Verso)"
             columnName="license_back_path"
             currentPath={initialData?.licenseBack}
-            onUploadComplete={(path) => console.log("Verso update:", path)}
+            onUploadComplete={() => onUpdate && onUpdate()}
           />
         </div>
       </div>

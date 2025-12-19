@@ -2,7 +2,7 @@ import React from "react";
 
 interface ProfileHeaderProps {
   avatarUrl?: string;
-  avatarPreview: string;
+  avatarPreview?: string;
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = () => {

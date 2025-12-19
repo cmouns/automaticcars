@@ -26,26 +26,22 @@ export const useProfile = () => {
   const [formData, setFormData] = useState<UserProfile>(INITIAL_FORM_DATA);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [avatarPreview] = useState<string>("https://picsum.photos/200/200");
 
   const fetchProfile = useCallback(async (uid: string) => {
     setLoading(true);
-    setError(null);
     try {
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from("clients")
         .select("*")
         .eq("user_id", uid)
         .single();
 
-      if (error && error.code !== "PGRST116") {
-        throw new Error(error.message);
-      }
+      if (fetchError && fetchError.code !== "PGRST116") throw fetchError;
 
       if (data) {
         setFormData({
           id: data.id,
-          email: data.email,
+          email: data.email || "",
           firstName: data.firstname || "",
           lastName: data.lastname || "",
           phoneNumber: data.phone || "",
@@ -58,92 +54,90 @@ export const useProfile = () => {
           licenseExpirationDate: data.license_expiration_date || "",
           licenseObtainedDate: data.license_obtained_date || "",
           avatarUrl: data.avatar_url || "",
-          isPro: data.is_pro || false,
           licenseFrontPath: data.license_front_path || null,
           licenseBackPath: data.license_back_path || null,
+          isPro: data.is_pro || false,
         });
       }
-    } catch (err: unknown) {
+    } catch (err) {
       console.error(err);
-      setError("Impossible de charger le profil.");
+      setError("Erreur de chargement.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user && mounted) {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user) {
         setUserId(session.user.id);
-        fetchProfile(session.user.id);
-      } else if (mounted) {
+        await fetchProfile(session.user.id);
+      } else {
         setLoading(false);
       }
-    });
+    };
+
+    checkSession();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user && mounted) {
+      if (session?.user) {
         setUserId(session.user.id);
         fetchProfile(session.user.id);
+      } else {
+        setUserId(null);
+        setFormData(INITIAL_FORM_DATA);
       }
     });
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, [fetchProfile]);
 
-  const handleChange = useCallback(
-    (
-      e:
-        | React.ChangeEvent<HTMLInputElement>
-        | { target: { name: string; value: string } }
-    ) => {
-      setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    },
-    []
-  );
+  const handleChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | { target: { name: string; value: string } }
+  ) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) return;
-
     setLoading(true);
-    setError(null);
-
-    const clientData = {
-      user_id: userId,
-      email: formData.email,
-      firstname: formData.firstName,
-      lastname: formData.lastName,
-      phone: formData.phoneNumber,
-      date_of_birth: formData.dateOfBirth || null,
-      addr_street: formData.address,
-      addr_city: formData.city,
-      addr_zip: formData.zipCode,
-      country: formData.country,
-      license_num: formData.licenseNumber,
-      license_expiration_date: formData.licenseExpirationDate || null,
-      license_obtained_date: formData.licenseObtainedDate || null,
-    };
 
     try {
-      const { error: saveError } = await supabase
+      const { data, error: upsertError } = await supabase
         .from("clients")
-        .upsert(clientData, { onConflict: "user_id" });
+        .upsert(
+          {
+            user_id: userId,
+            email: formData.email,
+            firstname: formData.firstName,
+            lastname: formData.lastName,
+            phone: formData.phoneNumber,
+            date_of_birth: formData.dateOfBirth || null,
+            addr_street: formData.address,
+            addr_city: formData.city,
+            addr_zip: formData.zipCode,
+            country: formData.country,
+            license_num: formData.licenseNumber,
+            license_expiration_date: formData.licenseExpirationDate || null,
+            license_obtained_date: formData.licenseObtainedDate || null,
+          },
+          { onConflict: "user_id" }
+        )
+        .select()
+        .single();
 
-      if (saveError) throw new Error(saveError.message);
-      alert("Profil mis à jour !");
+      if (upsertError) throw upsertError;
+      if (data) alert("Profil mis à jour !");
     } catch (err: unknown) {
-      console.error(err);
-      const message =
-        err instanceof Error ? err.message : "Erreur lors de l'enregistrement.";
-      setError(message);
+      setError(err instanceof Error ? err.message : "Erreur.");
     } finally {
       setLoading(false);
     }
@@ -153,9 +147,9 @@ export const useProfile = () => {
     loading,
     error,
     formData,
-    avatarPreview,
     handleChange,
     handleSave,
     userId,
+    refreshProfile: () => userId && fetchProfile(userId),
   };
 };
