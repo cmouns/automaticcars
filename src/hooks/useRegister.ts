@@ -46,6 +46,17 @@ export const useRegister = (onSuccess: () => void) => {
     } = formData;
 
     try {
+      if (!dateOfBirth) throw new Error("La date de naissance est requise.");
+      
+      const birthDate = new Date(dateOfBirth);
+      const today = new Date();
+      const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+      if (birthDate > eighteenYearsAgo) {
+        throw new Error("Vous devez avoir au moins 18 ans pour vous inscrire.");
+      }
+      // --------------------------------------
+
       if (!phoneNumber) throw new Error("Le numéro de téléphone est requis.");
 
       let cleanPhone = phoneNumber;
@@ -76,6 +87,7 @@ export const useRegister = (onSuccess: () => void) => {
       if (signUpError) throw signUpError;
       if (!authData.user)
         throw new Error("Erreur lors de la création du compte.");
+        
       const { error: clientError } = await supabase.from("clients").upsert(
         {
           user_id: authData.user.id,

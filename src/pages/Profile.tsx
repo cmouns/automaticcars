@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Sidebar } from "../components/profile/SideBar";
 import { PersonalInfo } from "../components/profile/PersonalInfo";
 import { LicenseSection } from "../components/profile/LicenseSection";
@@ -7,7 +7,36 @@ import { useProfile } from "../hooks/useProfile";
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState("profile");
-  const { userId, formData, loading, refreshProfile } = useProfile();
+
+  const {
+    userId,
+    formData,
+    loading,
+    error,
+    handleChange,
+    handleSave,
+    refreshProfile,
+  } = useProfile();
+
+  const [sidebarProfile, setSidebarProfile] = useState({
+    firstName: "",
+    lastName: "",
+  });
+
+  const latestDataRef = useRef(formData);
+
+  useEffect(() => {
+    latestDataRef.current = formData;
+  }, [formData]);
+
+  useEffect(() => {
+    if (!loading) {
+      setSidebarProfile({
+        firstName: latestDataRef.current.firstName,
+        lastName: latestDataRef.current.lastName,
+      });
+    }
+  }, [loading]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -16,7 +45,15 @@ const Profile: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "profile":
-        return <PersonalInfo />;
+        return (
+          <PersonalInfo
+            formData={formData}
+            loading={loading}
+            error={error}
+            handleChange={handleChange}
+            handleSave={handleSave}
+          />
+        );
 
       case "license":
         return (
@@ -48,7 +85,7 @@ const Profile: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (loading && !formData.email) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream text-gold-500">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
@@ -66,8 +103,7 @@ const Profile: React.FC = () => {
           </h1>
           <p className="text-gray-600 max-w-2xl">
             Bienvenue dans votre espace personnel. Gérez vos préférences, vos
-            documents et sécurisez votre compte pour une expérience de location
-            d'exception.
+            documents et sécurisez votre compte.
           </p>
         </div>
 
@@ -75,8 +111,8 @@ const Profile: React.FC = () => {
           <Sidebar
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            firstName={formData.firstName}
-            lastName={formData.lastName}
+            firstName={sidebarProfile.firstName}
+            lastName={sidebarProfile.lastName}
           />
 
           <div className="flex-1 min-w-0">
@@ -86,6 +122,7 @@ const Profile: React.FC = () => {
           </div>
         </div>
       </main>
+
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-gold-600/5 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-900/5 rounded-full blur-[120px]"></div>

@@ -1,12 +1,28 @@
 import React from "react";
 import { Button } from "../../ui/Button";
-import { useProfile } from "../../../hooks/useProfile";
-import { ProfileHeader } from "./Header";
+import { ProfileHeader } from "./Header"; 
 import { PersonalDetails, AddressDetails, LicenseDetails } from "./Fields";
+import type { UserProfile } from "../../../types";
 
-export const PersonalInfo: React.FC = () => {
-  const { loading, error, formData, handleChange, handleSave } = useProfile();
+interface PersonalInfoProps {
+  formData: UserProfile;
+  loading: boolean;
+  error: string | null;
+  handleChange: (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | { target: { name: string; value: string } }
+  ) => void;
+  handleSave: (e: React.FormEvent) => Promise<void>;
+}
 
+export const PersonalInfo: React.FC<PersonalInfoProps> = ({
+  formData,
+  loading,
+  error,
+  handleChange,
+  handleSave,
+}) => {
   if (loading && !formData.firstName) {
     return (
       <div className="flex justify-center items-center h-64 text-gold-500 animate-pulse">

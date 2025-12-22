@@ -14,6 +14,13 @@ interface SectionProps {
   ) => void;
 }
 
+const today = new Date();
+const maxBirthDate = new Date(
+  today.getFullYear() - 18,
+  today.getMonth(),
+  today.getDate()
+);
+
 export const PersonalDetails: React.FC<SectionProps> = ({
   formData,
   handleChange,
@@ -65,6 +72,7 @@ export const PersonalDetails: React.FC<SectionProps> = ({
         value={formData.dateOfBirth || ""}
         onChange={handleChange}
         variant="light"
+        maxDate={maxBirthDate}
       />
     </div>
   </div>
@@ -110,6 +118,7 @@ export const AddressDetails: React.FC<SectionProps> = ({
         placeholder="France"
         value={formData.country}
         onChange={handleChange}
+        disabled
         variant="light"
       />
     </div>
@@ -138,6 +147,7 @@ export const LicenseDetails: React.FC<SectionProps> = ({
         value={formData.licenseObtainedDate || ""}
         onChange={handleChange}
         variant="light"
+        maxDate={today}
       />
       <DateInput
         label="Date d'expiration"
@@ -145,6 +155,7 @@ export const LicenseDetails: React.FC<SectionProps> = ({
         value={formData.licenseExpirationDate || ""}
         onChange={handleChange}
         variant="light"
+        minDate={today}
       />
     </div>
   </div>

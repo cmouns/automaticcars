@@ -24,6 +24,13 @@ export const Register: React.FC<AuthModalProps> = ({
     handleSubmit,
   } = useRegister(onClose);
 
+  const today = new Date();
+  const maxDate = new Date(
+    today.getFullYear() - 18,
+    today.getMonth(),
+    today.getDate()
+  );
+
   return (
     <AuthModalWrapper
       isOpen={isOpen}
@@ -90,6 +97,8 @@ export const Register: React.FC<AuthModalProps> = ({
             name="dateOfBirth"
             value={formData.dateOfBirth}
             onChange={handleChange}
+            maxDate={maxDate} 
+            required 
           />
 
           <PhoneInputGroup
