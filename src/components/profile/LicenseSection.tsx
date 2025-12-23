@@ -32,6 +32,10 @@ export const LicenseSection: React.FC<LicenseSectionProps> = ({
   const today = new Date();
   const minReasonableDate = new Date();
   minReasonableDate.setFullYear(today.getFullYear() - 100);
+  
+  useEffect(() => {
+        window.scrollTo(0, 0);
+      }, []);
 
   useEffect(() => {
     if (initialData) {

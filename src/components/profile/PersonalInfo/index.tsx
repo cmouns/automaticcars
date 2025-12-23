@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "../../ui/Button";
-import { ProfileHeader } from "./Header"; 
+import { ProfileHeader } from "./Header";
 import { PersonalDetails, AddressDetails, LicenseDetails } from "./Fields";
 import type { UserProfile } from "../../../types";
 
@@ -23,6 +23,11 @@ export const PersonalInfo: React.FC<PersonalInfoProps> = ({
   handleChange,
   handleSave,
 }) => {
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   if (loading && !formData.firstName) {
     return (
       <div className="flex justify-center items-center h-64 text-gold-500 animate-pulse">

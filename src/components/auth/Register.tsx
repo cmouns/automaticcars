@@ -1,148 +1,227 @@
 import React from "react";
-import { supabase } from "../../lib/supabaseClient";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
-import type { AuthModalProps } from "../../types";
+import { supabase } from "../../lib/supabaseClient";
 import { Input } from "../ui/Input";
-import { Button } from "../ui/Button";
-import { AuthModalWrapper } from "./AuthModalWrapper";
 import { DateInput } from "../ui/DateInput";
 import { PhoneInputGroup } from "./PhoneInputGroup";
-import { useRegister } from "../../hooks/useRegister";
+import { Button } from "../ui/Button";
+import { AuthModalWrapper } from "./AuthModalWrapper";
 
-export const Register: React.FC<AuthModalProps> = ({
+const registerSchema = z
+  .object({
+    firstName: z.string().min(2, "Prénom requis"),
+    lastName: z.string().min(2, "Nom requis"),
+    email: z.string().email("Email invalide"),
+    countryCode: z.string(),
+    phoneNumber: z.string().min(9, "Numéro trop court"),
+
+    birthDate: z.string().refine((val) => {
+      const date = new Date(val);
+      const age = new Date().getFullYear() - date.getFullYear();
+      return age >= 18 && age <= 65;
+    }, "Vous devez avoir entre 18 et 65 ans"),
+
+    password: z.string().min(6, "6 caractères minimum"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
+
+interface RegisterProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onToggleView: () => void;
+}
+
+export const Register: React.FC<RegisterProps> = ({
   isOpen,
   onClose,
   onToggleView,
 }) => {
   const {
-    formData,
-    loading,
-    error,
-    handleChange,
-    setCountryCode,
+    register,
+    control,
     handleSubmit,
-  } = useRegister(onClose);
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      birthDate: "",
+      countryCode: "+33",
+      phoneNumber: "",
+    },
+  });
 
   const today = new Date();
-  const maxDate = new Date(
+  const minBirthDate = new Date(
+    today.getFullYear() - 65,
+    today.getMonth(),
+    today.getDate()
+  );
+  const maxBirthDate = new Date(
     today.getFullYear() - 18,
     today.getMonth(),
     today.getDate()
   );
+
+  const onSubmit = async (data: RegisterFormValues) => {
+    try {
+      const fullPhone = `${data.countryCode}${data.phoneNumber}`;
+
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            first_name: data.firstName,
+            last_name: data.lastName,
+            full_name: `${data.firstName} ${data.lastName}`,
+            phone: fullPhone,
+            birth_date: data.birthDate,
+          },
+        },
+      });
+      if (error) throw error;
+      alert("Inscription réussie !");
+      onClose();
+    } catch (err: unknown) {
+      let errorMessage = "Erreur lors de l'inscription";
+      if (err instanceof Error) errorMessage = err.message;
+      setError("root", { message: errorMessage });
+    }
+  };
 
   return (
     <AuthModalWrapper
       isOpen={isOpen}
       onClose={onClose}
       title="Créer un compte"
-      subtitle="Devenez membre de prestige"
+      subtitle="de Prestige"
     >
-      <div className="space-y-5">
-        <Button
-          variant="secondary"
-          fullWidth
-          icon={<FcGoogle size={20} />}
-          onClick={() =>
-            supabase.auth.signInWithOAuth({
-              provider: "google",
-              options: { redirectTo: window.location.origin },
-            })
-          }
-        >
-          S'inscrire avec Google
-        </Button>
-
-        <div className="relative flex items-center py-2">
-          <div className="flex-grow border-t border-gray-800"></div>
-          <span className="mx-4 text-gray-500 text-xs uppercase">Ou</span>
-          <div className="flex-grow border-t border-gray-800"></div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-black">
+        {/* PRÉNOM & NOM */}
+        <div className="flex gap-4">
+          <Input
+            label="Prénom"
+            placeholder="Marc"
+            icon={<User size={18} />}
+            {...register("firstName")}
+            error={errors.firstName?.message}
+          />
+          <Input
+            label="Nom"
+            placeholder="Dubois"
+            icon={<User size={18} />}
+            {...register("lastName")}
+            error={errors.lastName?.message}
+          />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex gap-4">
-            <Input
-              name="firstName"
-              label="Prénom"
-              placeholder="Marc"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-              icon={<User size={18} />}
+        {/* EMAIL */}
+        <Input
+          label="Email"
+          type="email"
+          placeholder="exemple@email.com"
+          icon={<Mail size={18} />}
+          {...register("email")}
+          error={errors.email?.message}
+        />
+
+        {/* TÉLÉPHONE */}
+        <Controller
+          control={control}
+          name="phoneNumber"
+          render={({ field: { onChange, value } }) => (
+            <Controller
+              control={control}
+              name="countryCode"
+              render={({
+                field: { onChange: onCountryChange, value: countryValue },
+              }) => (
+                <PhoneInputGroup
+                  countryCode={countryValue}
+                  phoneNumber={value}
+                  onCountryChange={onCountryChange}
+                  onChange={(e) => onChange(e.target.value)}
+                />
+              )}
             />
-            <Input
-              name="lastName"
-              label="Nom"
-              placeholder="Dubois"
-              value={formData.lastName}
-              onChange={handleChange}
+          )}
+        />
+        {errors.phoneNumber && (
+          <p className="text-red-500 text-xs ml-1">
+            {errors.phoneNumber.message}
+          </p>
+        )}
+
+        {/* DATE DE NAISSANCE */}
+        <Controller
+          control={control}
+          name="birthDate"
+          render={({ field }) => (
+            <DateInput
+              label="Date de naissance"
+              name={field.name}
+              value={field.value}
+              onChange={(e) => field.onChange(e.target.value)}
+              minDate={minBirthDate}
+              maxDate={maxBirthDate}
               required
-              icon={<User size={18} />}
+              className={errors.birthDate ? "border-red-500" : ""}
             />
-          </div>
+          )}
+        />
+        {errors.birthDate && (
+          <p className="text-red-500 text-xs ml-1">
+            {errors.birthDate.message}
+          </p>
+        )}
 
-          <Input
-            type="email"
-            name="email"
-            label="Email"
-            placeholder="marc@exemple.com"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            icon={<Mail size={18} />}
-          />
-
-          <DateInput
-            label="Date de Naissance"
-            name="dateOfBirth"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-            maxDate={maxDate} 
-            required 
-          />
-
-          <PhoneInputGroup
-            countryCode={formData.countryCode}
-            phoneNumber={formData.phoneNumber}
-            onCountryChange={setCountryCode}
-            onChange={handleChange}
-          />
-
+        {/* MOT DE PASSE */}
+        <div className="space-y-4">
           <Input
             type="password"
-            name="password"
             label="Mot de passe"
-            placeholder="Min. 8 caractères"
-            value={formData.password}
-            onChange={handleChange}
-            required
+            placeholder="••••••"
             icon={<Lock size={18} />}
-            withShowPassword={true}
+            withShowPassword
+            {...register("password")}
+            error={errors.password?.message}
           />
+        </div>
 
-          {error && (
-            <div className="p-3 rounded bg-red-500/10 border border-red-500/20 text-center">
-              <p className="text-red-500 text-sm">{error}</p>
-            </div>
-          )}
+        {errors.root && (
+          <p className="text-red-500 text-sm text-center bg-red-500/10 p-2 rounded">
+            {errors.root.message}
+          </p>
+        )}
 
-          <Button type="submit" fullWidth isLoading={loading} className="mt-4">
-            S'INSCRIRE <ArrowRight size={18} className="ml-2" />
-          </Button>
-        </form>
+        <Button
+          type="submit"
+          fullWidth
+          isLoading={isSubmitting}
+          className="mt-4"
+        >
+          S'INSCRIRE <ArrowRight size={18} className="ml-2" />
+        </Button>
+      </form>
 
-        <p className="mt-6 text-sm text-center text-gray-500">
-          Déjà un compte ?{" "}
-          <Button
-            variant="link"
-            onClick={onToggleView}
-            className="ml-1 p-0 h-auto"
-          >
-            Se connecter ici.
-          </Button>
-        </p>
-      </div>
+      <p className="mt-6 text-sm text-center text-gray-500">
+        Déjà membre ?
+        <Button variant="link" onClick={onToggleView} className="ml-1">
+          Se connecter
+        </Button>
+      </p>
     </AuthModalWrapper>
   );
 };
+
 export default Register;

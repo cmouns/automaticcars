@@ -5,7 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 import { Input } from '../ui/Input'; 
 import { Button } from '../ui/Button'; 
 import { AuthModalWrapper } from './AuthModalWrapper'; 
-import { useLogin } from '../../hooks/useLogin'; // Import du nouveau hook
+import { useLogin } from '../../hooks/useLogin'; 
 
 interface LoginProps {
   isOpen: boolean;
@@ -41,8 +41,8 @@ export const Login: React.FC<LoginProps> = ({ isOpen, onClose, onToggleView, onF
               name="email" 
               label="Email" 
               placeholder="votre@email.com" 
-              value={formData.email} 
-              onChange={handleChange} // Plus propre ici
+              value={formData.email}
+              onChange={handleChange}
               required 
               icon={<Mail size={18} />} 
             />
@@ -52,7 +52,7 @@ export const Login: React.FC<LoginProps> = ({ isOpen, onClose, onToggleView, onF
               label="Mot de passe" 
               placeholder="Mot de passe" 
               value={formData.password} 
-              onChange={handleChange} // Et ici
+              onChange={handleChange} 
               required 
               icon={<Lock size={18} />} 
             />

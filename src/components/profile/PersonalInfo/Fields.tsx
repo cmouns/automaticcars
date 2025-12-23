@@ -20,6 +20,11 @@ const maxBirthDate = new Date(
   today.getMonth(),
   today.getDate()
 );
+const minBirthDate = new Date(
+  today.getFullYear() - 65,
+  today.getMonth(),
+  today.getDate()
+);
 
 export const PersonalDetails: React.FC<SectionProps> = ({
   formData,
@@ -73,6 +78,7 @@ export const PersonalDetails: React.FC<SectionProps> = ({
         onChange={handleChange}
         variant="light"
         maxDate={maxBirthDate}
+        minDate={minBirthDate}
       />
     </div>
   </div>

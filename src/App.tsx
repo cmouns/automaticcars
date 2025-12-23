@@ -8,13 +8,18 @@ import {
 } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
 
+// --- IMPORTS PUBLICS ---
 import MainLayout from "./components/layout/MainLayout";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
-
 import { Login } from "./components/auth/Login";
 import { Register } from "./components/auth/Register";
 import { ForgotPassword } from "./components/auth/ForgotPassword";
+
+// --- IMPORTS ADMIN (NOUVEAU) ---
+import AdminLayout from "./components/layout/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminFleet from "./pages/admin/AdminFleet";
 
 import { supabase } from "./lib/supabaseClient";
 
@@ -27,9 +32,9 @@ function MainRouter() {
   const [authView, setAuthView] = useState<"login" | "register" | "forgot">(
     "login"
   );
-
   const [hasRedirectedAfterLogin, setHasRedirectedAfterLogin] = useState(false);
 
+  // Calcul de la page active pour le menu public
   const currentPageId = useMemo(() => {
     const path = location.pathname;
     return path === "/" ? "home" : path.substring(1).split("/")[0];
@@ -82,11 +87,12 @@ function MainRouter() {
 
       if (session && event === "SIGNED_IN" && !hasRedirectedAfterLogin) {
         handleCloseAuth();
-
-        if (!location.pathname.startsWith("/profile")) {
+        if (
+          !location.pathname.startsWith("/profile") &&
+          !location.pathname.startsWith("/admin")
+        ) {
           handleAppNavigation("profile");
         }
-
         setHasRedirectedAfterLogin(true);
       }
 
@@ -106,35 +112,45 @@ function MainRouter() {
 
   return (
     <>
-      <MainLayout
-        session={session}
-        onLogout={handleLogout}
-        onOpenAuth={handleOpenAuth}
-        currentPage={currentPageId}
-        onNavigate={handleAppNavigation}
-      >
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route
-            path="/:pageId"
-            element={
-              <div style={{ padding: "100px" }} className="text-white">
-                Page {currentPageId.toUpperCase()}
-              </div>
-            }
-          />
-          <Route
-            path="*"
-            element={
-              <div style={{ padding: "100px" }} className="text-white">
-                404 | Page non trouvée
-              </div>
-            }
-          />
-        </Routes>
-      </MainLayout>
+      <Routes>
+        {/* --- 1. ZONE ADMIN (Totalement séparée) --- */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="fleet" element={<AdminFleet />} />
+          {/* Ajoute tes autres routes admin ici (finance, clients...) */}
+        </Route>
 
+        {/* --- 2. ZONE PUBLIQUE (Wrappée dans MainLayout) --- */}
+        <Route
+          path="*"
+          element={
+            <MainLayout
+              session={session}
+              onLogout={handleLogout}
+              onOpenAuth={handleOpenAuth}
+              currentPage={currentPageId}
+              onNavigate={handleAppNavigation}
+            >
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
+
+                {/* Fallback pour les pages génériques */}
+                <Route
+                  path="/:pageId"
+                  element={
+                    <div style={{ padding: "100px" }} className="text-white">
+                      Page {currentPageId.toUpperCase()}
+                    </div>
+                  }
+                />
+              </Routes>
+            </MainLayout>
+          }
+        />
+      </Routes>
+
+      {/* --- MODALS AUTHENTIFICATION (Globales) --- */}
       {authView === "login" && (
         <Login
           isOpen={authModalOpen}

@@ -1,92 +1,85 @@
-import React, { useMemo } from "react";
+import { motion } from "framer-motion";
+import { FaInstagram, FaSnapchatGhost, FaTiktok } from "react-icons/fa";
+import { cn } from "../../../lib/utils";
 import type { NavItem, SocialLinkData } from "./data";
-import { InstagramIcon, TiktokIcon, SnapchatIcon } from "./icons";
 
-interface IconProps {
-  size: number;
-  width: number;
-  height: number;
+interface NavLinkProps {
+  type?: "nav" | "social";
+  item?: NavItem;
+  link?: SocialLinkData;
+  activePage?: string;
+  handleNavClick?: (id: string) => void;
+  isMobile?: boolean; 
 }
-type IconComponentType = React.FC<IconProps>;
 
-const SOCIAL_ICON_MAP: { [key: string]: IconComponentType | null } = {
-  Instagram: InstagramIcon,
-  Tiktok: TiktokIcon,
-  Snapchat: SnapchatIcon,
+const SocialIcon = ({
+  name,
+  className,
+}: {
+  name: string;
+  className?: string;
+}) => {
+  if (name === "Instagram") return <FaInstagram className={className} />;
+  if (name === "Snapchat") return <FaSnapchatGhost className={className} />;
+  return <FaTiktok className={className} />;
 };
 
-type LinkProps = {
-  isMobile: boolean;
-  className?: string;
-} & (
-  | {
-      type: "nav";
-      item: NavItem;
-      activePage: string;
-      handleNavClick: (id: string) => void;
-      link?: never;
-    }
-  | {
-      type: "social";
-      link: SocialLinkData;
-      activePage?: never;
-      handleNavClick?: never;
-      item?: never;
-    }
-);
-
-function NavLink(props: LinkProps) {
-  const { isMobile, className } = props;
-
-  const iconKey = useMemo(() => {
-    if (props.type === "social") {
-      return props.link.icon;
-    }
-    return null;
-  }, [props.type, props.link]);
-
-  const Icon = iconKey ? SOCIAL_ICON_MAP[iconKey] : null;
-
-  if (props.type === "nav") {
-    const { item, activePage, handleNavClick } = props;
-    const mobileClasses =
-      "text-xl text-white font-sans italic hover:text-gold-400 transition-colors block";
-    const desktopClasses = `text-sm font-bold uppercase tracking-widest transition-colors relative whitespace-nowrap after:content-[''] after:absolute after:-bottom-2 after:left-0 after:h-0.5 after:bg-gold-400 after:transition-all hover:after:w-full ${activePage === item.id ? "text-gold-400 after:w-full" : "text-gray-300 hover:text-gold-400 after:w-0"}`;
-
-    return (
-      <button
-        onClick={() => handleNavClick(item.id)}
-        className={`${isMobile ? mobileClasses : desktopClasses} ${className || ""}`}
-      >
-        {item.label}
-      </button>
-    );
-  }
-
-  if (props.type === "social") {
-    const { link } = props;
-
-    if (!Icon) return null;
-
-    const baseClasses = isMobile
-      ? "text-4xl text-white"
-      : "text-white  transition-colors";
-
-    const size = isMobile ? 30 : 20;
-
+const NavLink = ({
+  type = "nav",
+  item,
+  link,
+  activePage,
+  handleNavClick,
+  isMobile,
+}: NavLinkProps) => {
+  if (type === "social" && link) {
     return (
       <a
         href={link.href}
         target="_blank"
         rel="noopener noreferrer"
-        className={`${className || baseClasses} ${link.hover || ""}`}
+        className={cn(
+          "transition-colors duration-300",
+          isMobile
+            ? "text-white opacity-70 hover:opacity-100 hover:text-gold-400"
+            : `text-white ${link.hover}`
+        )}
       >
-        <Icon size={size} width={size} height={size} />
+        <SocialIcon
+          name={link.icon}
+          className={isMobile ? "w-8 h-8" : "w-5 h-5"}
+        />
       </a>
     );
   }
 
-  return null;
-}
+  if (!item) return null; 
+  const isActive = activePage === item.id;
+
+  return (
+    <button
+      onClick={() => handleNavClick?.(item.id)}
+      className={cn(
+        "relative group transition-colors duration-300 font-medium font-sans",
+        isMobile
+          ? "block w-full py-4 text-xl border-b border-gray-800/50 px-4 text-left hover:bg-white/5 hover:text-gold-400 hover:pl-6 transition-all"
+          : "text-sm uppercase tracking-wider py-2",
+        isActive ? "text-gold-400" : "text-white hover:text-gold-400"
+      )}
+    >
+      {item.label}
+
+      {!isMobile && isActive && (
+        <motion.span
+          layoutId="underline"
+          className="absolute left-0 right-0 -bottom-1 h-0.5 bg-gold-400"
+        />
+      )}
+      {!isMobile && !isActive && (
+        <span className="absolute left-0 right-0 -bottom-1 h-0.5 bg-gold-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+      )}
+    </button>
+  );
+};
 
 export default NavLink;

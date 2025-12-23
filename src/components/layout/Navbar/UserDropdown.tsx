@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { LogOut, User, Heart, UserCircle } from "lucide-react";
+import { LogOut, User, Heart, UserCircle, LayoutDashboard } from "lucide-react"; 
 import type { Session } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom"; 
 
 interface UserDropdownProps {
   session: Session;
@@ -15,6 +16,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -46,6 +48,11 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
     setIsOpen(false);
   };
 
+  const handleAdminClick = () => {
+    navigate("/admin"); 
+    setIsOpen(false);
+  };
+
   return (
     <div className="relative group/user" ref={dropdownRef}>
       <button
@@ -71,6 +78,15 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
           <div className="px-4 py-2 text-sm text-gray-400 border-b border-white/10 truncate">
             {userEmail}
           </div>
+
+          <button
+            onClick={handleAdminClick}
+            className="flex items-center w-full px-4 py-3 text-sm font-bold text-gold-500 hover:bg-white/5 transition-colors border-b border-white/10 mb-1"
+          >
+            <LayoutDashboard size={18} className="mr-3" />
+            ADMINISTRATION
+          </button>
+          {/* ------------------------------------------- */}
 
           {menuItems.map((item) => (
             <button

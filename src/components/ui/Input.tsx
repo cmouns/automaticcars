@@ -1,5 +1,7 @@
 import React, { useState, forwardRef } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "../../lib/utils"; 
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -14,15 +16,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     {
       id,
       type = "text",
-      placeholder,
-      required = false,
+      className,
       label,
       icon,
       withShowPassword = false,
-      className = "",
-      value,
-      onChange,
-      disabled,
       error,
       variant = "dark",
       ...props
@@ -30,29 +27,23 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     ref
   ) => {
     const [showPassword, setShowPassword] = useState(false);
-
     const inputType = type === "password" && showPassword ? "text" : type;
-
-    const styles = {
-      dark: "border-gray-700 bg-dark-800 text-white placeholder-gray-500",
-      light: "border border-gold-500 bg-white text-black placeholder-gray-400",
-    };
 
     return (
       <div className="w-full">
         {label && (
           <label
             htmlFor={id}
-            className="text-sm uppercase text-gold-500 ml-1 mb-1 block"
+            className="text-xs uppercase tracking-widest text-gold-500 ml-1 mb-1.5 block font-bold"
           >
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {props.required && <span className="text-red-500 ml-1">*</span>}
           </label>
         )}
 
         <div className="relative group">
           {icon && (
-            <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 group-focus-within:text-gold-500 transition-colors">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 group-focus-within:text-gold-500 transition-colors duration-300">
               {icon}
             </div>
           )}
@@ -61,36 +52,52 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={id}
             type={inputType}
-            className={`
-                        w-full py-3 pr-4 rounded-lg border
-                        focus:border-gold-500 focus:outline-none
-                        disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-200
-                        transition-all duration-300
-                        ${styles[variant]} 
-                        ${icon ? "pl-11" : "pl-4"} 
-                        ${withShowPassword ? "pr-12" : ""}
-                        ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}
-                        ${className}
-                    `}
-            placeholder={placeholder}
-            required={required}
-            disabled={disabled}
-            value={value}
-            onChange={onChange}
+            className={cn(
+              "w-full py-3 pr-4 rounded-lg border outline-none transition-all duration-300",
+              "placeholder:text-gray-500 font-medium",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+
+              variant === "dark" &&
+                "bg-dark-800 border-gray-700 text-white focus:border-gold-400 focus:ring-1 focus:ring-gold-400/20",
+
+              variant === "light" &&
+                "bg-white border-gold-400 text-dark-900 focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20",
+
+              icon ? "pl-11" : "pl-4",
+              withShowPassword ? "pr-12" : "",
+
+              error &&
+                "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+
+              className
+            )}
             {...props}
           />
+
           {withShowPassword && type === "password" && (
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gold-500 focus:outline-none transition-colors"
+              className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gold-500 transition-colors focus:outline-none"
+              tabIndex={-1}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           )}
         </div>
 
-        {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+        <AnimatePresence>
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, y: -5, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -5, height: 0 }}
+              className="mt-1.5 text-xs text-red-400 font-medium ml-1 flex items-center gap-1"
+            >
+              • {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
