@@ -11,7 +11,7 @@ import { cn } from "../../lib/utils";
 
 export default function AdminDashboard() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 font-sans">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KpiCard
           title="Chiffre d'Affaires"
@@ -50,10 +50,10 @@ export default function AdminDashboard() {
             {[35, 45, 30, 60, 75, 50, 65, 80, 55, 70, 90, 85].map((h, i) => (
               <div
                 key={i}
-                className="w-full bg-zinc-800 rounded-t-sm hover:bg-gold-500/50 transition-colors relative group"
+                className="w-full bg-zinc-800 rounded-t-sm hover:bg-gold-400/50 transition-colors relative group"
               >
                 <div
-                  className="absolute bottom-0 w-full bg-gradient-to-t from-gold-600 to-gold-400 rounded-t-sm transition-all duration-500"
+                  className="absolute bottom-0 w-full bg-gradient-to-t from-gold-500 to-gold-400 rounded-t-sm transition-all duration-500"
                   style={{ height: `${h}%` }}
                 ></div>
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
             ].map((resa, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-3 bg-zinc-950/50 border border-zinc-800/50 rounded-lg group hover:border-gold-500/30 transition-colors"
+                className="flex items-center justify-between p-3 bg-zinc-950/50 border border-zinc-800/50 rounded-lg group hover:border-gold-400/30 transition-colors"
               >
                 <div>
                   <div className="flex items-center gap-2">
@@ -146,6 +146,7 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
 interface KpiCardProps {
   title: string;
   value: string | number;
@@ -168,7 +169,7 @@ function KpiCard({
       className={cn(
         "p-6 rounded-xl border backdrop-blur-md transition-all duration-300 hover:-translate-y-1",
         isGold
-          ? "bg-gradient-to-br from-zinc-900 to-zinc-800 border-gold-500/30 shadow-lg shadow-gold-500/5"
+          ? "bg-gradient-to-br from-zinc-900 to-zinc-800 border-gold-400/30 shadow-lg shadow-gold-400/5"
           : "bg-zinc-900/50 border-zinc-800",
         isAlert && "border-red-500/30 bg-red-500/5"
       )}
@@ -177,7 +178,7 @@ function KpiCard({
         <div
           className={cn(
             "p-2 rounded-lg",
-            isGold ? "bg-gold-500 text-black" : "bg-zinc-800 text-zinc-400"
+            isGold ? "bg-gold-400 text-black" : "bg-zinc-800 text-zinc-400"
           )}
         >
           <Icon size={20} />
@@ -186,7 +187,7 @@ function KpiCard({
           className={cn(
             "text-xs font-medium px-2 py-1 rounded-full",
             isGold
-              ? "bg-gold-500/10 text-gold-500"
+              ? "bg-gold-400/10 text-gold-400"
               : "bg-zinc-800 text-zinc-500",
             isAlert && "bg-red-500/10 text-red-500"
           )}
@@ -206,6 +207,7 @@ function StatusBadge({ status }: { status: string }) {
     confirmed: "text-green-400 bg-green-400/10 border-green-400/20",
     rejected: "text-red-400 bg-red-400/10 border-red-400/20",
   };
+
   const currentStyle = styles[status] || styles.waiting;
 
   return (

@@ -9,6 +9,8 @@ interface Car extends CarData {
 
 export default function AdminFleet() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+
   const [cars, setCars] = useState<Car[]>([
     {
       id: 1,
@@ -26,11 +28,11 @@ export default function AdminFleet() {
       hp: 600,
       accel: 3.6,
       seats: 5,
-      features: [],
+      features: ["Toit Panoramique", "Échappement Sport"],
       images: [
         {
           id: "1",
-          url: "https://images.unsplash.com/photo-1603584173870-7b23140c25b2?auto=format&fit=crop&q=80&w=1000",
+          url: "https://images.unsplash.com/photo-1619682817481-e994891cd1f5?auto=format&fit=crop&q=80&w=1000",
           isCover: true,
         },
       ],
@@ -51,7 +53,7 @@ export default function AdminFleet() {
       hp: 650,
       accel: 3.6,
       seats: 5,
-      features: [],
+      features: ["Pack Carbone"],
       images: [
         {
           id: "2",
@@ -62,14 +64,37 @@ export default function AdminFleet() {
     },
   ]);
 
-  const handleAddNewCar = (newCarData: CarData) => {
-    const newCar: Car = {
-      id: Date.now(),
-      ...newCarData,
-    };
+  const handleOpenAdd = () => {
+    setSelectedCar(null);
+    setIsDrawerOpen(true);
+  };
 
-    setCars([newCar, ...cars]);
+  const handleOpenEdit = (car: Car) => {
+    setSelectedCar(car);
+    setIsDrawerOpen(true);
+  };
+
+  const handleSaveCar = (carData: CarData) => {
+    if (selectedCar) {
+      setCars((prev) =>
+        prev.map((c) =>
+          c.id === selectedCar.id ? { ...carData, id: selectedCar.id } : c
+        )
+      );
+    } else {
+      const newCar: Car = { id: Date.now(), ...carData };
+      setCars((prev) => [newCar, ...prev]);
+    }
     setIsDrawerOpen(false);
+    setSelectedCar(null);
+  };
+
+  const handleDeleteCar = () => {
+    if (selectedCar) {
+      setCars((prev) => prev.filter((c) => c.id !== selectedCar.id));
+      setIsDrawerOpen(false);
+      setSelectedCar(null);
+    }
   };
 
   const getCoverImage = (car: Car) => {
@@ -80,13 +105,11 @@ export default function AdminFleet() {
   };
 
   return (
-    <div className="relative h-full">
+    <div className="relative h-full font-sans">
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white font-serif">
-              Ma Flotte
-            </h1>
+            <h1 className="text-2xl font-bold text-white">Ma Flotte</h1>
             <p className="text-zinc-400">
               Gestion du parc automobile ({cars.length} véhicules)
             </p>
@@ -94,7 +117,7 @@ export default function AdminFleet() {
           <Button
             variant="primary"
             icon={<Plus size={18} />}
-            onClick={() => setIsDrawerOpen(true)}
+            onClick={handleOpenAdd}
           >
             Ajouter un véhicule
           </Button>
@@ -104,7 +127,7 @@ export default function AdminFleet() {
           {cars.map((car) => (
             <div
               key={car.id}
-              className="group relative bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-gold-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-gold-500/5"
+              className="group relative bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-gold-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-gold-400/5"
             >
               <div className="h-56 overflow-hidden relative">
                 <img
@@ -123,29 +146,32 @@ export default function AdminFleet() {
               <div className="p-5">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h3 className="text-xl font-bold text-white font-serif">
+                    <h3 className="text-xl font-bold text-white">
                       {car.brand} {car.model}
                     </h3>
                     <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider mt-0.5">
                       {car.plate}
                     </p>
                   </div>
-                  <button className="text-zinc-500 hover:text-white transition p-1 hover:bg-zinc-800 rounded">
+                  <button
+                    onClick={() => handleOpenEdit(car)}
+                    className="text-zinc-500 hover:text-white transition p-1 hover:bg-zinc-800 rounded"
+                  >
                     <MoreVertical size={18} />
                   </button>
                 </div>
 
                 <div className="flex gap-4 my-5 py-3 border-y border-zinc-800/50">
                   <div className="flex items-center gap-2 text-zinc-400 text-xs font-medium">
-                    <Gauge size={14} className="text-gold-500" />{" "}
+                    <Gauge size={14} className="text-gold-400" />{" "}
                     <span>{car.hp} ch</span>
                   </div>
                   <div className="flex items-center gap-2 text-zinc-400 text-xs font-medium">
-                    <Fuel size={14} className="text-gold-500" />{" "}
+                    <Fuel size={14} className="text-gold-400" />{" "}
                     <span>{car.energy}</span>
                   </div>
                   <div className="flex items-center gap-2 text-zinc-400 text-xs font-medium">
-                    <Settings size={14} className="text-gold-500" />{" "}
+                    <Settings size={14} className="text-gold-400" />{" "}
                     <span>{car.gearbox}</span>
                   </div>
                 </div>
@@ -162,7 +188,10 @@ export default function AdminFleet() {
                       Caution: {car.deposit}€
                     </p>
                   </div>
-                  <button className="px-4 py-2 rounded-lg bg-white text-black text-sm font-bold hover:bg-gold-400 transition-colors shadow-lg shadow-white/5">
+                  <button
+                    onClick={() => handleOpenEdit(car)}
+                    className="px-4 py-2 rounded-lg bg-white text-black text-sm font-bold hover:bg-gold-400 transition-colors shadow-lg shadow-white/5"
+                  >
                     Gérer
                   </button>
                 </div>
@@ -184,8 +213,11 @@ export default function AdminFleet() {
       >
         {isDrawerOpen && (
           <AddCarForm
+            key={selectedCar ? selectedCar.id : "new"}
             onClose={() => setIsDrawerOpen(false)}
-            onSave={handleAddNewCar}
+            onSave={handleSaveCar}
+            onDelete={selectedCar ? handleDeleteCar : undefined}
+            initialData={selectedCar}
           />
         )}
       </div>
@@ -199,9 +231,7 @@ function StatusPill({ status }: { status: string }) {
     rented: { color: "bg-amber-500 text-amber-950", text: "Louée" },
     maintenance: { color: "bg-red-500 text-red-950", text: "Garage" },
   };
-
   const current = config[status] || config.available;
-
   return (
     <span
       className={`px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wide ${current.color} shadow-lg backdrop-blur-md`}

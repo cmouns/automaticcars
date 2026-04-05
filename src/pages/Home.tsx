@@ -6,16 +6,18 @@ const Home: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
   return (
     <div className="home-page">
-      <div className="xl:-mt-20">
+      {/* Suppression du -mt-20 qui décalait le Hero vers le haut */}
+      <div className="">
         <Hero />
         <div className="py-10 bg-gray-100">
           <h2 className="text-center text-2xl font-bold mb-4">
             Zone de Test Technique
           </h2>
           <ImageUpload />
-        </div>{" "}
+        </div>
       </div>
 
       <section className="min-h-[500px] bg-dark-800 text-white flex items-center justify-center p-10">
