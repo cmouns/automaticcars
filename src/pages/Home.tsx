@@ -1,6 +1,13 @@
+// src/pages/Home.tsx
 import React, { useEffect } from "react";
 import Hero from "../components/sections/Hero";
-import ImageUpload from "../components/ImageUpload";
+import BrandsCarousel from "../components/sections/BrandsCarousel";
+import HomeIntro from "../components/sections/HomeIntro";
+import Services from "../components/sections/Services";
+import FeaturedCars from "../components/sections/FeaturedCars";
+import Solutions from "../components/sections/Solutions";
+import FaqContact from "../components/sections/FaqContact";
+import Testimonials from "../components/sections/Testimonials";
 
 const Home: React.FC = () => {
   useEffect(() => {
@@ -8,29 +15,15 @@ const Home: React.FC = () => {
   }, []);
 
   return (
-    <div className="home-page">
-      {/* Suppression du -mt-20 qui décalait le Hero vers le haut */}
-      <div className="">
-        <Hero />
-        <div className="py-10 bg-gray-100">
-          <h2 className="text-center text-2xl font-bold mb-4">
-            Zone de Test Technique
-          </h2>
-          <ImageUpload />
-        </div>
-      </div>
-
-      <section className="min-h-[500px] bg-dark-800 text-white flex items-center justify-center p-10">
-        <h2 className="text-3xl font-serif text-gold-400">
-          Section 2: Nos Services (Flotte, LLD, etc.)
-        </h2>
-      </section>
-
-      <section className="min-h-[500px] bg-dark-900 text-white flex items-center justify-center p-10">
-        <h2 className="text-3xl font-serif text-gold-400">
-          Section 3: Témoignages Clients
-        </h2>
-      </section>
+    <div className="home-page font-sans selection:bg-gold-400 selection:text-black bg-[#fafafa] overflow-x-hidden">
+      <Hero />
+      <BrandsCarousel />
+      <HomeIntro />
+      <Services />
+      <FeaturedCars />
+      <Solutions />
+      <FaqContact />
+      <Testimonials />
     </div>
   );
 };

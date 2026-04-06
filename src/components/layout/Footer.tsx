@@ -22,7 +22,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     (link: SocialLinkData) =>
       link.icon === "Instagram" ||
       link.icon === "Tiktok" ||
-      link.icon === "Snapchat"
+      link.icon === "Snapchat",
   );
 
   return (
@@ -33,7 +33,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <img
               src={logo}
               alt="Automatic Cars logo"
-              className="h-20  w-auto pb-5"
+              className="h-20 w-auto pb-5"
             />
             <p className="text-gray-400 font-light leading-relaxed max-w-md mb-8">
               L'excellence automobile à votre service. Nous redéfinissons les
@@ -48,7 +48,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   type="social"
                   link={link}
                   isMobile={false}
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300"
+                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 hover:bg-gold-500 hover:text-dark-900"
                 />
               ))}
             </div>
@@ -72,7 +72,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => handleFooterLinkClick("subscription")}
                   className="hover:text-white transition-colors"
                 >
-                  Services Exclusifs
+                  L'Abonnement
                 </button>
               </li>
               <li>
@@ -103,39 +103,39 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={16} className="text-gold-400" />
-                <span>+33 7 68 17 68 82</span>
+                <a
+                  href="tel:+33768176882"
+                  className="hover:text-white transition-colors"
+                >
+                  +33 7 68 17 68 82
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={16} className="text-gold-400" />
-                <span>Jad@automaticcars.fr</span>
+                <a
+                  href="mailto:jad@automaticcars.fr"
+                  className="hover:text-white transition-colors"
+                >
+                  jad@automaticcars.fr
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
+        {/* BOTTOM FOOTER (Copyright & Legal) */}
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
           <p>
             &copy; {new Date().getFullYear()} Automatic Cars. Tous droits
             réservés.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
+            {/* Le lien unique vers la page légale globale */}
             <button
               onClick={() => handleFooterLinkClick("conditions")}
-              className="hover:text-white transition-colors"
+              className="hover:text-white transition-colors uppercase tracking-widest font-bold"
             >
-              Mentions Légales
-            </button>
-            <button
-              onClick={() => handleFooterLinkClick("politique-confidentialite")}
-              className="hover:text-white transition-colors"
-            >
-              Politique de Confidentialité
-            </button>
-            <button
-              onClick={() => handleFooterLinkClick("cgv")}
-              className="hover:text-white transition-colors"
-            >
-              CGV
+              Mentions Légales & CGV
             </button>
           </div>
         </div>
