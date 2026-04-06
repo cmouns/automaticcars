@@ -8,14 +8,18 @@ interface MobileMenuProps {
   activePage: string;
 }
 
-const MobileMenu: React.FC<MobileMenuProps> = ({
+const MobileMenu: React.FC<Readonly<MobileMenuProps>> = ({
   isMobileMenuOpen,
   handleNavClick,
   activePage,
 }) => {
   return (
-    <div
-      className={`fixed inset-0 w-full h-[100dvh] bg-dark-900 z-40 transition-transform duration-500 xl:hidden ${
+    <dialog
+      id="mobile-menu"
+      open={isMobileMenuOpen}
+      aria-label="Menu de navigation"
+      aria-hidden={!isMobileMenuOpen}
+      className={`block fixed inset-0 w-full h-[100dvh] bg-dark-900 z-40 transition-transform duration-500 xl:hidden m-0 max-w-none max-h-none border-0 p-0 ${
         isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
       }`}
     >
@@ -40,13 +44,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
           Réserver
         </button>
 
-        <div className="flex gap-8 pt-6 mt-auto">
+        <div className="flex gap-8 pt-6 mt-auto" aria-label="Réseaux sociaux">
           {SOCIAL_LINKS_DATA.map((link) => (
             <NavLink key={link.href} type="social" link={link} isMobile />
           ))}
         </div>
       </div>
-    </div>
+    </dialog>
   );
 };
 

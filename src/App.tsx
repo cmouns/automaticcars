@@ -9,15 +9,27 @@ import {
 
 import MainLayout from "./components/layout/MainLayout";
 import Home from "./pages/Home";
-import Reservation from "./pages/Reservation"; // Ta nouvelle page !
+import Reservation from "./pages/Reservation";
 import About from "./pages/About";
 import News from "./pages/News";
 import Article from "./pages/Article";
 import Subscription from "./pages/Subscription";
-import LLD from "./pages/LLD";
+import LldPage from "./pages/LLD";
 import Terms from "./pages/Terms";
 import Fleet from "./pages/Fleet";
 import Contact from "./pages/Contact";
+
+const PATH_MAP: Record<string, string> = {
+  home: "/",
+  reservation: "/reservation",
+  about: "/about",
+  news: "/news",
+  subscription: "/subscription",
+  lld: "/lld",
+  conditions: "/conditions",
+  fleet: "/fleet",
+  contact: "/contact",
+};
 
 function MainRouter() {
   const navigate = useNavigate();
@@ -30,79 +42,34 @@ function MainRouter() {
 
   const handleAppNavigation = useCallback(
     (pageId: string) => {
-      let path = "/";
-      switch (pageId) {
-        case "home":
-          path = "/";
-          break;
-        case "reservation":
-          path = "/reservation";
-          break;
-        case "about":
-          path = "/about";
-          break;
-        case "news":
-          path = "/news";
-          break;
-        case "subscription":
-          path = "/subscription";
-          break;
-        case "lld":
-          path = "/lld";
-          break;
-        case "conditions":
-          path = "/conditions";
-          break;
-        case "fleet":
-          path = "/fleet";
-          break;
-        case "contact":
-          path = "/contact";
-          break;
-        default:
-          path = `/${pageId}`;
-      }
-      navigate(path);
+      navigate(PATH_MAP[pageId] ?? `/${pageId}`);
     },
     [navigate],
   );
 
   return (
-    <Routes>
-      <Route
-        path="*"
-        element={
-          <MainLayout
-            currentPage={currentPageId}
-            onNavigate={handleAppNavigation}
-          >
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/reservation" element={<Reservation />} />
-              <Route
-                path="/:pageId"
-                element={
-                  <div
-                    style={{ padding: "100px" }}
-                    className="text-white text-center"
-                  >
-                    Page {currentPageId.toUpperCase()} en construction
-                  </div>
-                }
-              />
-              <Route path="/about" element={<About />} />
-              <Route path="/news" element={<News />} />
-              <Route path="/news/:slug" element={<Article />} />
-              <Route path="/subscription" element={<Subscription />} />
-              <Route path="/lld" element={<LLD />} />
-              <Route path="/conditions" element={<Terms />} />{" "}
-              <Route path="/fleet" element={<Fleet />} />{" "}
-              <Route path="/contact" element={<Contact />} />
-            </Routes>
-          </MainLayout>
-        }
-      />
-    </Routes>
+    <MainLayout currentPage={currentPageId} onNavigate={handleAppNavigation}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/reservation" element={<Reservation />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/news" element={<News />} />
+        <Route path="/news/:slug" element={<Article />} />
+        <Route path="/subscription" element={<Subscription />} />
+        <Route path="/lld" element={<LldPage />} />
+        <Route path="/conditions" element={<Terms />} />
+        <Route path="/fleet" element={<Fleet />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route
+          path="*"
+          element={
+            <div className="pt-[130px] py-20 text-white text-center">
+              Page en construction
+            </div>
+          }
+        />
+      </Routes>
+    </MainLayout>
   );
 }
 

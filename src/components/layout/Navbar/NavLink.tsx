@@ -38,6 +38,7 @@ const NavLink = ({
         href={link.href}
         target="_blank"
         rel="noopener noreferrer"
+        aria-label={`Suivez-nous sur ${link.icon}`}
         className={cn(
           "transition-colors duration-300",
           isMobile
@@ -48,6 +49,7 @@ const NavLink = ({
         <SocialIcon
           name={link.icon}
           className={isMobile ? "w-8 h-8" : "w-5 h-5"}
+          aria-hidden
         />
       </a>
     );

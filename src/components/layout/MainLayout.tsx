@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import React, { type PropsWithChildren } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
@@ -17,9 +17,9 @@ const MainLayout: React.FC<PropsWithChildren<MainLayoutProps>> = ({
 
   // La navbar fait ~80px sur mobile, et ~130px sur PC (à cause de la sous-navbar "Suivez-nous")
   // Sur la page réservation, on force le main à prendre 100vh (hauteur de l'écran)
-  const mainClasses = isHome
-    ? "pt-0"
-    : `pt-[80px] xl:pt-[130px] ${isReservation ? "flex flex-col h-[100dvh]" : ""}`;
+  let mainClasses = "pt-0";
+  if (!isHome && isReservation) mainClasses = "pt-[80px] xl:pt-[130px] flex flex-col flex-grow";
+  else if (!isHome) mainClasses = "pt-[80px] xl:pt-[130px]";
 
   return (
     <div className="font-sans min-h-screen flex flex-col">

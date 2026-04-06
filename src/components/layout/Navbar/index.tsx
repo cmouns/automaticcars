@@ -10,7 +10,7 @@ interface NavbarProps {
   onNavigate?: (page: string) => void;
 }
 
-export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
+export default function Navbar({ currentPage, onNavigate }: Readonly<NavbarProps>) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [localPage, setLocalPage] = useState("home");
@@ -20,19 +20,14 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Gestion du body lock pour le menu mobile
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen]);
 
@@ -52,18 +47,19 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
     <div
       className={`fixed top-0 w-full z-50 transition-all duration-500 ${bgClasses} ${currentTextColor}`}
     >
-      <nav className={`w-full ${paddingClasses}`}>
+      <nav className={`w-full ${paddingClasses}`} role="navigation" aria-label="Navigation principale">
         <div className="container mx-auto px-6 max-w-[1900px] flex items-center justify-between xl:justify-center gap-x-16">
-          <div
-            className="flex items-center cursor-pointer"
+          <button
+            className="flex items-center cursor-pointer bg-transparent border-none p-0"
             onClick={() => handleNavClick("home")}
+            aria-label="Accueil Automatic Cars"
           >
             <img
               src={logo}
               alt="Automatic Cars logo"
               className="h-12 md:h-14 w-auto"
             />
-          </div>
+          </button>
 
           <div className="hidden xl:flex items-center space-x-8">
             {NAV_ITEMS.map((item) => (
@@ -77,13 +73,14 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
               />
             ))}
 
-            <div className="h-8 w-px bg-white/20 mx-2"></div>
+            <div className="h-8 w-px bg-white/20 mx-2" aria-hidden="true"></div>
 
             <a
               href="tel:+33768176882"
               className="flex items-center gap-2 text-white hover:text-gold-400 mr-4"
+              aria-label="Appeler le +33 7 68 17 68 82"
             >
-              <Phone size={20} />
+              <Phone size={20} aria-hidden="true" />
               <span className="hidden 2xl:inline font-bold text-sm">
                 +33 7 68 17 68 82
               </span>
@@ -99,10 +96,13 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
 
           <div className="xl:hidden">
             <button
-              className="text-white"
+              className={currentTextColor}
               onClick={() => setIsMobileMenuOpen((v) => !v)}
+              aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-menu"
             >
-              {isMobileMenuOpen ? <X size={30} /> : <Menu size={30} />}
+              {isMobileMenuOpen ? <X size={30} aria-hidden="true" /> : <Menu size={30} aria-hidden="true" />}
             </button>
           </div>
         </div>

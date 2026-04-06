@@ -1,36 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../ui/Button";
-import {
-  CheckCircle,
-  Infinity as InfinityIcon,
-  BadgeCheck,
-} from "lucide-react";
-import bordeaux from "/src/assets/hero-automaticcars.jpg";
+import { CheckCircle, Infinity as InfinityIcon, BadgeCheck } from "lucide-react";
+import bordeaux from "../../assets/hero-automaticcars.jpg";
 
 const Hero: React.FC = () => {
-  const [offset, setOffset] = useState(0);
+  const rafId = useRef<number | undefined>(undefined);
+  const bgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      requestAnimationFrame(() => {
-        setOffset(window.pageYOffset);
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+      rafId.current = requestAnimationFrame(() => {
+        if (bgRef.current) {
+          bgRef.current.style.transform = `translate3d(0, ${window.scrollY * 0.5}px, 0)`;
+        }
       });
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+    };
   }, []);
 
   return (
-    /* Utilisation de h-screen pour forcer le 100% de la hauteur de l'écran */
-    <section className="relative h-screen w-full overflow-hidden flex items-center bg-dark-900">
-      <style>{`
-                @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-                .animate-fade-in-up { animation: fadeInUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-            `}</style>
-
+    <section
+      className="relative h-screen w-full overflow-hidden flex items-center bg-dark-900"
+      aria-label="Automatic Cars – Location de prestige à Bordeaux"
+    >
       <div
+        ref={bgRef}
         className="absolute inset-0 w-full h-full will-change-transform"
-        style={{ transform: `translate3d(0, ${offset * 0.5}px, 0)` }}
       >
         <img
           src={bordeaux}
@@ -75,7 +76,7 @@ const Hero: React.FC = () => {
             className="text-gray-200 text-lg md:text-xl max-w-xl font-light leading-relaxed mb-8 border-l-2 border-gold-400 pl-6 drop-shadow-lg opacity-0 animate-fade-in-up"
             style={{ animationDelay: "0.7s" }}
           >
-            L’alliance parfaite entre performance et confort. Que vous
+            L'alliance parfaite entre performance et confort. Que vous
             choisissiez de conduire ou d'être conduit, profitez d'offres
             flexibles conçues pour répondre à vos plus hautes exigences.
           </p>
@@ -85,17 +86,15 @@ const Hero: React.FC = () => {
             style={{ animationDelay: "1.0s" }}
           >
             <div className="flex items-center gap-2">
-              <CheckCircle size={18} className="text-gold-400" />
+              <CheckCircle size={18} className="text-gold-400" aria-hidden="true" />
               <span>Formules Flexibles</span>
             </div>
-
             <div className="flex items-center gap-2">
-              <InfinityIcon size={18} className="text-gold-400" />
+              <InfinityIcon size={18} className="text-gold-400" aria-hidden="true" />
               <span>Kilométrage illimité*</span>
             </div>
-
             <div className="flex items-center gap-2">
-              <BadgeCheck size={18} className="text-gold-400" />
+              <BadgeCheck size={18} className="text-gold-400" aria-hidden="true" />
               <span>Partenaire Mercedes</span>
             </div>
           </div>
@@ -104,15 +103,19 @@ const Hero: React.FC = () => {
             className="flex flex-col sm:flex-row items-start gap-4 opacity-0 animate-fade-in-up"
             style={{ animationDelay: "1.3s" }}
           >
-            <Button className="shadow-gold-glow w-full sm:w-auto sm:text-[10px] sm:px-5 sm:py-2.5">
-              Réserver mon véhicule
-            </Button>
-            <Button
-              variant="secondary"
-              className="border-gray-400 text-gray-200 hover:border-white hover:text-white hover:bg-white/10 w-full sm:w-auto sm:text-[10px] sm:px-5 sm:py-2.5"
-            >
-              Voir la flotte
-            </Button>
+            <Link to="/reservation" className="w-full sm:w-auto">
+              <Button className="shadow-gold-glow w-full">
+                Réserver mon véhicule
+              </Button>
+            </Link>
+            <Link to="/fleet" className="w-full sm:w-auto">
+              <Button
+                variant="secondary"
+                className="border-gray-400 text-gray-200 hover:border-white hover:text-white hover:bg-white/10 w-full"
+              >
+                Voir la flotte
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

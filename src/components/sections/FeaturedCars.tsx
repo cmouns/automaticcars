@@ -69,7 +69,7 @@ const FeaturedCars: React.FC = () => {
 
       {/* Bouton Voir toute la flotte */}
       <div className="text-center mt-10">
-        <Link to="/voitures">
+        <Link to="/fleet">
           <Button
             variant="secondary"
             className="border-gray-300 text-dark-900 hover:bg-dark-900 hover:text-white hover:border-dark-900 transition-colors py-3 px-8"
