@@ -1,6 +1,7 @@
 import React, { type PropsWithChildren } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import CookieBanner from "../ui/CookieBanner"; // <-- IMPORT AJOUTÉ ICI
 
 interface MainLayoutProps {
   currentPage: string;
@@ -18,7 +19,8 @@ const MainLayout: React.FC<PropsWithChildren<MainLayoutProps>> = ({
   // La navbar fait ~80px sur mobile, et ~130px sur PC (à cause de la sous-navbar "Suivez-nous")
   // Sur la page réservation, on force le main à prendre 100vh (hauteur de l'écran)
   let mainClasses = "pt-0";
-  if (!isHome && isReservation) mainClasses = "pt-[80px] xl:pt-[130px] flex flex-col flex-grow";
+  if (!isHome && isReservation)
+    mainClasses = "pt-[80px] xl:pt-[130px] flex flex-col flex-grow";
   else if (!isHome) mainClasses = "pt-[80px] xl:pt-[130px]";
 
   return (
@@ -29,6 +31,9 @@ const MainLayout: React.FC<PropsWithChildren<MainLayoutProps>> = ({
 
       {/* On désactive totalement le Footer sur la page Réservation pour un effet "App Native" */}
       {!isReservation && <Footer onNavigate={onNavigate} />}
+
+      {/* LA BANNIÈRE COOKIE AJOUTÉE ICI, ELLE S'AFFICHERA SUR TOUT LE SITE */}
+      <CookieBanner />
     </div>
   );
 };

@@ -31,7 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
         "disabled:opacity-60 disabled:cursor-not-allowed",
 
         variant === "primary" &&
-          "bg-gradient-to-r from-gold-600 to-gold-400 text-black shadow-[0_4px_20px_rgba(218,175,55,0.25)] hover:from-gold-500 hover:to-gold-400 border-none py-3 px-8",
+          "bg-[#D4AF37] hover:bg-gold-500 border-none py-3 px-8 text-black",
         variant === "secondary" &&
           "bg-transparent text-white border border-gray-400 hover:border-white hover:bg-white/5 py-3 px-8",
         variant === "link" &&

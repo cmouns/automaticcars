@@ -1,18 +1,15 @@
-// src/data/homeData.ts
 import { Key, Sparkles, Clock, Crown, ShieldCheck, Euro } from "lucide-react";
+
+// ─── Brands ───────────────────────────────────────────────────────────────────
 
 export const BRANDS_DATA = [
   {
-    name: "Cupra",
-    img: "https://automaticcars.fr/wp-content/uploads/2024/10/47071d6e0fc18c454660395f20c8247e.png",
+    name: "Mercedes-Benz",
+    img: "https://automaticcars.fr/wp-content/uploads/2024/10/pngegg-1.png",
   },
   {
     name: "BMW",
     img: "https://automaticcars.fr/wp-content/uploads/2025/07/bmw.png",
-  },
-  {
-    name: "Mercedes",
-    img: "https://automaticcars.fr/wp-content/uploads/2024/10/pngegg-1.png",
   },
   {
     name: "Volkswagen",
@@ -22,7 +19,25 @@ export const BRANDS_DATA = [
     name: "Mini",
     img: "https://automaticcars.fr/wp-content/uploads/2025/07/Mini-logo.svg.png",
   },
+  {
+    name: "Fiat",
+    img: "https://automaticcars.fr/wp-content/uploads/2024/10/logo-fiat.png",
+  },
+  {
+    name: "Renault",
+    img: "https://automaticcars.fr/wp-content/uploads/2024/10/CITYPNG.COMRenault-Logo-Icon-Sign-PNG-4000x4000-1.png",
+  },
+  {
+    name: "Nissan",
+    img: "https://automaticcars.fr/wp-content/uploads/2024/10/pngwing.com_.png",
+  },
+  {
+    name: "Cupra",
+    img: "https://automaticcars.fr/wp-content/uploads/2024/10/47071d6e0fc18c454660395f20c8247e.png",
+  },
 ];
+
+// ─── Services ─────────────────────────────────────────────────────────────────
 
 export const SERVICES_DATA = [
   {
@@ -37,7 +52,7 @@ export const SERVICES_DATA = [
     id: 2,
     title: "Nettoyage Inclus",
     description:
-      "Profitez d'un véhicule toujours propre avec notre service de nettoyage inclus à chaque location.",
+      "Profitez d'un véhicule toujours propre avec notre service de nettoyage modéré inclus à chaque location.",
     icon: Sparkles,
     isDark: true,
   },
@@ -53,7 +68,7 @@ export const SERVICES_DATA = [
     id: 4,
     title: "Offre Premium",
     description:
-      "Obtenez un véhicule premium à prix compétitifs, avec un contrat personnalisé.",
+      "Obtenez un véhicule premium à prix compétitifs, avec un contrat personnalisé selon vos besoins.",
     icon: Crown,
     isDark: false,
   },
@@ -75,79 +90,180 @@ export const SERVICES_DATA = [
   },
 ];
 
+// ─── Featured cars (23 véhicules de la flotte) ────────────────────────────────
+
 export const FEATURED_CARS = [
   {
-    name: "Cupra Leon",
-    img: "https://automaticcars.fr/wp-content/uploads/2025/07/Cupra-1-scaled-e1752522811309-1024x576.webp",
+    name: "Mercedes GLA",
+    img: "/images/featuredcars/mercedes-gla-location-bordeaux.webp",
   },
   {
-    name: "Renault Clio",
-    img: "https://automaticcars.fr/wp-content/uploads/2025/07/Clio-bleu-scaled-e1752709235590-1024x576.webp",
+    name: "Cupra Formentor 2025",
+    img: "/images/featuredcars/cupra-formentor-2025-location-bordeaux.webp",
   },
   {
-    name: "Mercedes-Benz CLE",
-    img: "https://automaticcars.fr/wp-content/uploads/2025/07/CLE-CAB-NOIR-1-scaled-e1752523435609-1024x576.webp",
+    name: "Nissan Juke",
+    img: "/images/featuredcars/nissan-juke-location-bordeaux.webp",
   },
   {
     name: "Mercedes Classe A",
-    img: "https://automaticcars.fr/wp-content/uploads/2025/07/ClasseA-1-scaled-e1752522200219-1024x576.webp",
+    img: "/images/featuredcars/mercedes-classe-a-location-bordeaux.webp",
   },
   {
-    name: "Golf GTI",
-    img: "https://automaticcars.fr/wp-content/uploads/2025/07/GTI-2-scaled-e1752523334191-1024x576.webp",
+    name: "Mini Cooper",
+    img: "/images/featuredcars/mini-cooper-location-bordeaux.webp",
+  },
+  {
+    name: "Volkswagen Taigo R",
+    img: "/images/featuredcars/volkswagen-taigo-r-location-bordeaux.webp",
+  },
+  {
+    name: "Fiat 500 Hybride",
+    img: "/images/featuredcars/fiat-500-hybride-location-bordeaux.webp",
+  },
+  {
+    name: "Volkswagen Golf 8 R Line",
+    img: "/images/featuredcars/volkswagen-golf-8-r-line-location-bordeaux.webp",
+  },
+  {
+    name: "Cupra Leon",
+    img: "/images/featuredcars/cupra-leon-location-bordeaux.webp",
+  },
+  {
+    name: "Renault Clio 5",
+    img: "/images/featuredcars/renault-clio-bleu-location-bordeaux.webp",
+  },
+  {
+    name: "Mercedes CLE Cabriolet",
+    img: "/images/featuredcars/mercedes-cle-cabriolet-noir-location-bordeaux.webp",
+  },
+  {
+    name: "Mercedes Classe A 200",
+    img: "/images/featuredcars/mercedes-classe-a-grise-location-bordeaux.webp",
+  },
+  {
+    name: "Volkswagen Golf GTI",
+    img: "/images/featuredcars/volkswagen-golf-gti-location-bordeaux.webp",
+  },
+  {
+    name: "BMW Série 1",
+    img: "/images/featuredcars/bmw-serie-1-location-bordeaux.webp",
+  },
+  {
+    name: "Mercedes CLE Cabriolet",
+    img: "/images/featuredcars/mercedes-cle-cabriolet-location-bordeaux.webp",
+  },
+  {
+    name: "BMW X1",
+    img: "/images/featuredcars/bmw-x1-location-bordeaux.webp",
+  },
+  {
+    name: "Cupra Formentor VZ",
+    img: "/images/featuredcars/cupra-formentor-vz-location-bordeaux.webp",
+  },
+  {
+    name: "Mercedes Classe E",
+    img: "/images/featuredcars/mercedes-classe-e-location-bordeaux.webp",
+  },
+  {
+    name: "Renault Clio 5",
+    img: "/images/featuredcars/renault-clio-rouge-location-bordeaux.webp",
+  },
+  {
+    name: "Mercedes Classe S",
+    img: "/images/featuredcars/mercedes-classe-s-location-bordeaux.webp",
+  },
+  {
+    name: "Toyota Aygo X",
+    img: "/images/featuredcars/toyota-aygo-location-bordeaux.webp",
+  },
+  {
+    name: "Mercedes GLC",
+    img: "/images/featuredcars/mercedes-glc-location-bordeaux.webp",
+  },
+  {
+    name: "Mercedes Classe G",
+    img: "/images/featuredcars/mercedes-classe-g-location-bordeaux.webp",
   },
 ];
+// ─── Reviews ──────────────────────────────────────────────────────────────────
 
 export const REVIEWS_DATA = [
   {
-    name: "Sophie Wilcock",
-    text: "Fantastic service! Jad and his team delivered our vehicle directly...",
-    time: "il y a 6 mois",
+    name: "Lookman",
+    text: "C'était incroyable, vous pouvez louer les yeux fermés avec Jad. La location s'est super bien passée 👌🏼",
+    time: "il y a 2 mois",
     bg: "bg-purple-600",
+    source: "google",
+  },
+  {
+    name: "Imad",
+    text: "Jad est quelqu'un d'humain, de très professionnel et attentif aux besoins de ses clients. Je recommande vivement !",
+    time: "il y a 1 mois",
+    bg: "bg-blue-600",
+    source: "google",
+  },
+  {
+    name: "Jeff Bilger",
+    text: "Location très abordable avec une communication rapide, une disponibilité et un large choix de véhicules 👌🏼.",
+    time: "il y a 3 mois",
+    bg: "bg-teal-600",
+    source: "google",
+  },
+  {
+    name: "Soufian Bey",
+    text: "Je recommande fortement. Prestation et service au top, retour de la caution très rapide, personne honnête et sérieuse ✅",
+    time: "il y a 4 mois",
+    bg: "bg-orange-500",
+    source: "google",
+  },
+  {
+    name: "Sophie Wilcock",
+    text: "Fantastic service! Jad and his team delivered our vehicle directly to us. Vehicle was spotless and exactly as described.",
+    time: "il y a 6 mois",
+    bg: "bg-pink-600",
+    source: "google",
   },
   {
     name: "Cameron Ngo",
-    text: "J’ai décidé de faire confiance à Automatic Cars Bordeaux pour partir un weekend...",
+    text: "J'ai décidé de faire confiance à Automatic Cars Bordeaux pour partir en week-end. Expérience parfaite du début à la fin.",
     time: "il y a 3 mois",
-    bg: "bg-blue-600",
+    bg: "bg-indigo-600",
+    source: "google",
   },
   {
-    name: "Paul Foquet Carron",
-    text: "Week-end parfait avec une Mercedes Classe S louée chez Automatic Cars...",
+    name: "Valérie L.",
+    text: "Bon véhicule en très bon état. Tout s'est très bien déroulé avec Jad. Hôte arrangeant.",
+    time: "il y a 5 mois",
+    bg: "bg-emerald-600",
+    source: "turo",
+  },
+  {
+    name: "Paul J.",
+    text: "Superb vehicle - super clean. Easy collect and return. Nice host. Perfect, thank you.",
     time: "il y a 7 mois",
-    bg: "bg-teal-600",
-  },
-  {
-    name: "Djema Menam",
-    text: "Je loue chez eux depuis plus d’un an maintenant et je n’ai jamais été déçue !",
-    time: "il y a 5 mois",
-    bg: "bg-orange-500",
-  },
-  {
-    name: "Likmazeer",
-    text: "Location GLC coupé 2025 parfaite, rien à dire, répondent du tac au tac...",
-    time: "il y a 3 mois",
-    bg: "bg-red-500",
-  },
-  {
-    name: "Jean-François R.",
-    text: "Service de location de voitures très qualitatif. Bon rapport qualité/prix...",
-    time: "il y a 5 mois",
-    bg: "bg-green-600",
+    bg: "bg-sky-600",
+    source: "turo",
   },
 ];
 
+// ─── FAQ ──────────────────────────────────────────────────────────────────────
+
 export const FAQS_DATA = [
   {
-    q: "Quelles sont nos conditions préalables ?",
-    a: "Vous devez avoir au moins vingt et un ans et être titulaire du permis depuis deux ans...",
+    q: "Quelles sont les conditions préalables ?",
+    a: "Vous devez avoir au moins 21 ans et être titulaire du permis depuis 2 ans. Nous demandons un permis de conduire valide (format physique), une pièce d'identité, une carte bancaire à votre nom, ainsi qu'un justificatif de domicile de moins de 3 mois.",
   },
   {
     q: "Y a-t-il un dépôt de garantie à prévoir ?",
-    a: "Oui, un dépôt de garantie est obligatoire. Il est effectué par empreinte bancaire...",
+    a: "Oui, un dépôt de garantie est obligatoire. Il est effectué par empreinte bancaire (ou exceptionnellement en espèces jusqu'à 1 000 €) au nom du conducteur. Le montant varie selon le véhicule. La restitution s'effectue entre 7 et 21 jours après retour du véhicule, s'il n'y a aucun frais à retenir.",
   },
   {
     q: "Comment se passe la réservation ?",
-    a: "La réservation se fait en ligne ou par téléphone. Vous choisissez les dates, le véhicule...",
+    a: "La réservation se fait en ligne ou par téléphone. Vous choisissez les dates, le véhicule, et si vous préférez une livraison ou un retrait sur place. Une fois la disponibilité confirmée et les documents reçus avec le paiement, vous recevez les détails par e-mail.",
+  },
+  {
+    q: "La livraison est-elle incluse dans le tarif ?",
+    a: "La livraison à domicile, en gare ou à l'aéroport est disponible sur devis selon la distance. Contactez-nous directement pour obtenir un tarif personnalisé et vérifier la disponibilité sur votre zone.",
   },
 ];

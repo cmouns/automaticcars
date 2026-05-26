@@ -59,7 +59,7 @@ const Hero: React.FC = () => {
             style={{ animationDelay: "0.4s" }}
           >
             Location de <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-gold-light italic pr-4 pb-4 inline-block">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-gold-light pr-4 pb-4 inline-block">
               Prestige
             </span>
             <span className="sr-only"> à Bordeaux</span>
@@ -104,7 +104,7 @@ const Hero: React.FC = () => {
             style={{ animationDelay: "1.3s" }}
           >
             <Link to="/reservation" className="w-full sm:w-auto">
-              <Button className="shadow-gold-glow w-full">
+              <Button className="shadow-gold-glow w-full text-black">
                 Réserver mon véhicule
               </Button>
             </Link>
